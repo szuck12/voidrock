@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="Voidrock — a minimalist arcade survival game. Dodge, shoot, and outlast the asteroids.">
+  <title>Voidrock</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="frame">
+    <header class="hud" id="hud">
+      <div class="hud-block hud-score">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="hud-score">0</span>
+        <span class="hud-best">BEST <span id="hud-best">0</span></span>
+      </div>
+
+      <div class="hud-block hud-lives-wrap">
+        <span class="hud-label">LIVES</span>
+        <span class="hud-value lives" id="hud-lives">&#9650;&#9650;&#9650;</span>
+      </div>
+
+      <div class="hud-block hud-chips-wrap">
+        <span class="hud-label">EFFECTS</span>
+        <div class="chips" id="hud-chips"></div>
+      </div>
+    </header>
+
+    <div class="stage">
+      <canvas id="game" width="960" height="640"></canvas>
+
+      <section class="overlay" id="overlay-menu">
+        <h1 class="title">VOIDROCK</h1>
+        <p class="subtitle">// ASTEROID SURVIVAL PROTOCOL</p>
+        <div class="controls-list">
+          <p><span class="key">W A S D</span> / <span class="key">&uarr;&darr;&larr;&rarr;</span> MOVE</p>
+          <p><span class="key">SPACE</span> FIRE &mdash; SHIP FACES ITS HEADING</p>
+          <p><span class="key">P</span> PAUSE</p>
+        </div>
+        <p class="hint">GOLD-RINGED CAPSULES ARE POWER-UPS &mdash; TOUCH TO COLLECT</p>
+        <p class="prompt blink">PRESS ENTER TO START</p>
+      </section>
+
+      <section class="overlay hidden" id="overlay-gameover">
+        <h1 class="title small">GAME OVER</h1>
+        <div class="final-stats">
+          <p>FINAL SCORE <span class="big" id="final-score">0</span></p>
+          <p>BEST <span id="final-best">0</span></p>
+          <p class="new-best hidden blink" id="new-best-tag">&#9670; NEW BEST &#9670;</p>
+        </div>
+        <p class="prompt blink">PRESS ENTER TO RESTART</p>
+      </section>
+
+      <section class="overlay hidden" id="overlay-paused">
+        <h1 class="title small">PAUSED</h1>
+        <p class="prompt">PRESS P TO RESUME</p>
+      </section>
+    </div>
+
+    <footer class="footnote">
+      <span>VOIDROCK // SECTOR DEFENSE SIMULATOR</span>
+      <span>SCORE +1/SEC &middot; BRONZE x2 &middot; SILVER x3 &middot; GOLD x5</span>
+    </footer>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

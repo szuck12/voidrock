@@ -1,0 +1,6 @@
+# Voidrock is a browser game with no Python runtime dependency.
+# This file is retained for project-structure consistency; it is
+# intentionally empty of packages.  The only optional Python use is
+# serving the game locally (`python3 -m http.server`), which requires
+# only the standard library.  Tests run on the Node.js built-in test
+# runner (see README.md).
