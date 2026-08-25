@@ -28,13 +28,15 @@ code defines *what*.
 
 | Level | Radius | Base speed |
 | --- | --- | --- |
-| 3 (large) | 38 px | 70 px/s |
-| 2 (medium) | 23 px | +30 px/s over parent tier |
-| 1 (small) | 12 px | +30 px/s again |
+| 3 (large) | 38 px | 115 px/s |
+| 2 (medium) | 23 px | +50 px/s over parent tier |
+| 1 (small) | 12 px | +50 px/s again |
 
 * Speeds carry ±35% variance; children inherit heading ± divergence.
-* Spawn edges are top / left / right only (weighted 50/25/25) —
-  never the bottom, where the HUD focus sits.
+* Spawn edges are all four sides — top, bottom, left, right —
+  weighted equally at 25% each.
+* Spawn sizes use weighted random selection: 50% large, 30% medium,
+  20% small.
 * Spawns keep ≥150 px from the player when possible.
 * Off-board margin 80 px with an `entered` flag and a 3 s grace:
   newcomers may approach, entered asteroids that leave are culled,
@@ -42,10 +44,17 @@ code defines *what*.
 
 ## Specials
 
-Unlocks at 25 s / 65 s / 115 s (bronze / silver / gold). Among
-specials, weights are bronze .58 / silver .30 / gold .12. Per-hit
-multipliers x2 / x3 / x5 apply on top of the flat 10-point base —
-size never matters, class does.
+Unlocks at 25 s / 115 s (bronze / gold). Silver has been removed.
+Among specials, weights are bronze .58 / gold .42. Per-hit
+multipliers x2 / x4 apply on top of the size-based base score.
+
+Scoring per hit:
+
+| Size | Bronze (x2) | Gold (x4) |
+| --- | --- | --- |
+| Large (10 pts) | 20 | 40 |
+| Medium (15 pts) | 30 | 60 |
+| Small (20 pts) | 40 | 80 |
 
 ## Difficulty Curve
 
@@ -79,19 +88,26 @@ Monotonicity is enforced by tests (`tests/test_difficulty.js`).
 * Spawn schedule independent of gameplay events: first roll at run
   start, reload-on-expiry with sub-frame remainder carry, interval
   14 s ±4 s jitter. Max 2 on field; uncollected capsules expire
-  after 12 s; spawns keep ≥90 px from the player.
+  after 12 s; spawns keep ≥150 px from the player.
+* Spawn frequency scales with elapsed time: `freqScale = 1 + elapsed / 600`,
+  so power-ups drop more often as the game progresses.
+* Duplicate prevention: no power-up spawns while one is already
+  on the board, and an active effect prevents a new one from
+  spawning for the same type.
 * Effects store absolute expiry times (`elapsed + duration`), so
-  pausing freezes them naturally. Durations:
+  pausing freezes them naturally.
 
-| Type | Duration | Notes |
-| --- | --- | --- |
-| Speed Boost | 6 s | 1.5x accel/cap |
-| Points Boost | 15 s | all scoring x2 |
-| Slow Asteroids | 6 s | displacement x0.45, velocities preserved |
-| Protective Border | 10 s | wall contact destroys rocks (scores!) |
-| Rapid Fire | 8 s | cooldown x0.45 |
-| Multi-Shot | 8 s | three-bolt spread |
-| Extra Life | instant | capped at 3; suppressed while full or one is on field |
+| Type | Duration | Weight | Unlocks at | Notes |
+| --- | --- | --- | --- | --- |
+| Speed Boost | 15 s | 12 | 0 s | 1.5x accel/cap |
+| Points Boost | 10 s | 14 | 0 s | all scoring x2 |
+| Slow Asteroids | 10 s | 10 | 0 s | displacement x0.45, velocities preserved |
+| Protective Border | 20 s | 6 | 0 s | border redirects asteroids; no points awarded |
+| Rapid Fire | 10 s | 12 | 0 s | cooldown x0.45 |
+| Multi-Shot | 10 s | 10 | 0 s | three-bolt spread |
+| Extra Life | instant | 14 | 0 s | capped at 3; only drops when below max |
+| 3x Score | 8 s | 4 | 60 s | all scoring x3 |
+| 5x Score | 6 s | 2 | 120 s | all scoring x5 |
 
 * Player collisions resolve against a snapshot of the asteroid
   list: split children created during the step wait for the next
@@ -99,8 +115,18 @@ Monotonicity is enforced by tests (`tests/test_difficulty.js`).
 
 ## Scoring
 
+Scoring is size-based, not flat:
+
+| Asteroid size | Points per hit |
+| --- | --- |
+| Large | 10 |
+| Medium | 15 |
+| Small | 20 |
+
 * +1 per whole second survived, fractional credit carries across
   arbitrary step sizes (frame-rate independent totals).
+* Multipliers (gold x2, Points Boost x2, 3x, 5x) apply
+  multiplicatively on top of the size-based score.
 * Hits route through `addScore`, which also raises `bestScore`;
   best persists to localStorage between sessions.
 

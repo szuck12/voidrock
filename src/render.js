@@ -13,7 +13,6 @@ import { BOARD } from "./config.js";
 const ASTEROID_COLORS = Object.freeze({
   normal: "#aab4bf",
   bronze: "#d08a3e",
-  silver: "#cfd6dd",
   gold: "#ffd700",
 });
 
@@ -261,7 +260,8 @@ function drawPowerUps(ctx, powerups, t) {
  * Draw the centre glyph communicating a power-up's function.
  *
  * Vector glyphs stay crisp at any canvas scale without font
- * dependencies; Points Boost uses digits via fillText.
+ * dependencies; Points Boost and score multipliers use digits via
+ * fillText.
  *
  * Args:
  *     ctx: Canvas context.
@@ -295,12 +295,8 @@ function drawPowerUpGlyph(ctx, type, x, y) {
       ctx.fillText("x2", 0, 1);
       break;
     case "extra_life":
-      ctx.beginPath();
-      ctx.moveTo(0, -6);
-      ctx.lineTo(0, 6);
-      ctx.moveTo(-6, 0);
-      ctx.lineTo(6, 0);
-      ctx.stroke();
+      // Heart symbol for extra life.
+      drawHeart(ctx, 0, 0, 7);
       break;
     case "slow_asteroids":
       // Hourglass.
@@ -340,10 +336,43 @@ function drawPowerUpGlyph(ctx, type, x, y) {
         ctx.stroke();
       }
       break;
+    case "score_3x":
+      ctx.font = 'bold 11px ui-monospace, Menlo, monospace';
+      ctx.fillText("3x", 0, 1);
+      break;
+    case "score_5x":
+      ctx.font = 'bold 11px ui-monospace, Menlo, monospace';
+      ctx.fillText("5x", 0, 1);
+      break;
     default:
       break;
   }
   ctx.restore();
+}
+
+/**
+ * Draw a heart shape at the given position.
+ *
+ * Args:
+ *     ctx: Canvas context.
+ *     cx: Centre X.
+ *     cy: Centre Y.
+ *     size: Overall size scale.
+ */
+function drawHeart(ctx, cx, cy, size) {
+  const s = size / 7;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + 3 * s);
+  // Left curve
+  ctx.bezierCurveTo(cx - 5 * s, cy - 1 * s,
+                     cx - 5 * s, cy - 5 * s,
+                     cx, cy - 3 * s);
+  // Right curve
+  ctx.bezierCurveTo(cx + 5 * s, cy - 5 * s,
+                     cx + 5 * s, cy - 1 * s,
+                     cx, cy + 3 * s);
+  ctx.closePath();
+  ctx.fill();
 }
 
 /**

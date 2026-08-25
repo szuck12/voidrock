@@ -32,12 +32,11 @@ describe("time-based scoring", () => {
      () => {
     const state = makeState();
     for (let i = 0; i < 10; i++) {
-      updateTimeScore(state, 0.4); // never a whole point alone
+      updateTimeScore(state, 0.4);
       if (i < 2) {
         assert.equal(state.score, 0);
       }
     }
-    // 10 * 0.4 = 4 whole points credited.
     assert.equal(state.score, 4);
   });
 
@@ -51,16 +50,6 @@ describe("time-based scoring", () => {
 });
 
 describe("asteroid hit scoring", () => {
-  /**
-   * Stage one projectile overlapping one asteroid and resolve.
-   *
-   * Args:
-   *     level: Asteroid size level.
-   *     type: Asteroid class.
-   *
-   * Returns:
-   *     Points awarded by the resolution.
-   */
   function scoreOfSingleHit(level, type) {
     const state = makeState();
     placeAsteroid(state, { level, type,
@@ -75,17 +64,22 @@ describe("asteroid hit scoring", () => {
     return state.score - before;
   }
 
-  it("awards the same base points for every size", () => {
-    const base = SCORING.BASE_HIT_SCORE;
-    assert.equal(scoreOfSingleHit(3, "normal"), base);
-    assert.equal(scoreOfSingleHit(2, "normal"), base);
-    assert.equal(scoreOfSingleHit(1, "normal"), base);
+  it("awards size-based points (Large=10, Medium=15, Small=20)",
+     () => {
+    assert.equal(scoreOfSingleHit(3, "normal"), 10);
+    assert.equal(scoreOfSingleHit(2, "normal"), 15);
+    assert.equal(scoreOfSingleHit(1, "normal"), 20);
   });
 
   it("multiplies special classes per hit", () => {
+    // Bronze 2x: Large=20, Medium=30, Small=40
     assert.equal(scoreOfSingleHit(3, "bronze"), 20);
-    assert.equal(scoreOfSingleHit(2, "silver"), 30);
-    assert.equal(scoreOfSingleHit(1, "gold"), 50);
+    assert.equal(scoreOfSingleHit(2, "bronze"), 30);
+    assert.equal(scoreOfSingleHit(1, "bronze"), 40);
+    // Gold 4x: Large=40, Medium=60, Small=80
+    assert.equal(scoreOfSingleHit(3, "gold"), 40);
+    assert.equal(scoreOfSingleHit(2, "gold"), 60);
+    assert.equal(scoreOfSingleHit(1, "gold"), 80);
   });
 
   it("doubles while points boost is active", () => {
@@ -98,14 +92,30 @@ describe("asteroid hit scoring", () => {
     p.prevX = p.x;
     state.projectiles.push(p);
     resolveProjectileHits(state);
-    assert.equal(state.score,
-                 SCORING.BASE_HIT_SCORE *
-                 SCORING.POINTS_BOOST_MULT);
+    // Medium normal = 15, with points boost = 30
+    assert.equal(state.score, 30);
   });
 
-  it("combines gold multiplier with points boost", () => {
-    // x5 special then x2 boost, no runaway recursion.
-    assert.equal(calculateAsteroidScore("gold", true), 100);
+  it("3x multiplier triples the base score", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", false, true, false), 30);
+    assert.equal(calculateAsteroidScore(1, "normal", false, true, false), 60);
+  });
+
+  it("5x multiplier quintuples the base score", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", false, false, true), 50);
+    assert.equal(calculateAsteroidScore(1, "normal", false, false, true), 100);
+  });
+
+  it("combines gold 4x with points boost 2x", () => {
+    // Large gold = 10 * 4 * 2 = 80
+    assert.equal(calculateAsteroidScore(3, "gold", true, false, false), 80);
+  });
+
+  it("combines all multipliers multiplicatively", () => {
+    // Small gold with points boost and 3x: 20 * 4 * 2 * 3 = 480
+    assert.equal(calculateAsteroidScore(1, "gold", true, true, false), 480);
+    // Medium bronze with 5x: 15 * 2 * 5 = 150
+    assert.equal(calculateAsteroidScore(2, "bronze", false, false, true), 150);
   });
 });
 
@@ -113,7 +123,6 @@ describe("single-scoring guarantees", () => {
   it("one projectile scores exactly once even with two targets",
      () => {
     const state = makeState();
-    // Two asteroids both straddling the projectile's swept path.
     placeAsteroid(state, { level: 1,
                            x: state.player.x + 120,
                            y: state.player.y });
@@ -122,8 +131,6 @@ describe("single-scoring guarantees", () => {
                            y: state.player.y });
     const p = createProjectile(state.player.x + 170,
                                state.player.y, 0);
-    // Simulate the frame sweep: it travelled from 300px left of
-    // its current spot rightwards through both targets.
     p.prevX = p.x - 300;
     state.projectiles.push(p);
 
@@ -131,7 +138,7 @@ describe("single-scoring guarantees", () => {
     resolveProjectileHits(state);
     const delta = state.score - before;
 
-    assert.equal(delta, SCORING.BASE_HIT_SCORE,
+    assert.equal(delta, 20, // small normal = 20 points
                  "only one target may be scored");
     assert.equal(state.asteroids.length, 1,
                  "the other asteroid survives");
@@ -150,7 +157,6 @@ describe("single-scoring guarantees", () => {
     state.projectiles.push(p);
     resolveProjectileHits(state);
     assert.equal(a.alive, false);
-    // Re-running resolution on dead entities must be a no-op.
     const before = state.score;
     resolveProjectileHits(state);
     assert.equal(state.score, before);
@@ -160,11 +166,10 @@ describe("single-scoring guarantees", () => {
 describe("score persistence", () => {
   it("survives death and updates bestScore", () => {
     const state = makeState();
-    advance(state, 4); // score 4
+    advance(state, 4);
     assert.equal(state.bestScore, 4);
-    addScore(state, 500); // simulate a big hit chain
+    addScore(state, 500);
     assert.equal(state.bestScore, state.score);
-    // Death does not touch score or best.
     state.lives = 1;
     loseLife(state);
     assert.equal(state.phase, "game_over");
@@ -174,9 +179,6 @@ describe("score persistence", () => {
 
   it("projectile scoring respects the cap on active projectiles",
      () => {
-    // The cap is enforced at fire time; scoring itself is bounded
-    // because each projectile resolves once (covered above). This
-    // test pins the constant relationship used by the cap logic.
     assert.ok(PROJECTILE.MAX_ACTIVE >= 1);
   });
 });

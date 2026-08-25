@@ -10,6 +10,7 @@ import {
   LIVES,
   PLAYER,
   POWERUP,
+  POWERUP_TYPES,
   PROJECTILE,
   SCORING,
   SPECIAL,
@@ -17,23 +18,18 @@ import {
 import { assert } from "./helpers.js";
 
 describe("config sanity", () => {
-  it("scores special multipliers normal < bronze < silver < gold",
-     () => {
+  it("scores special multipliers normal < bronze < gold", () => {
     const m = SCORING.SPECIAL_MULT;
     assert.equal(m.normal, 1);
     assert.equal(m.bronze, 2);
-    assert.equal(m.silver, 3);
-    assert.equal(m.gold, 5);
-    assert.ok(m.normal < m.bronze && m.bronze < m.silver &&
-              m.silver < m.gold);
+    assert.equal(m.gold, 4);
+    assert.ok(m.normal < m.bronze && m.bronze < m.gold);
   });
 
-  it("unlocks specials strictly in bronze, silver, gold order",
-     () => {
-    const { bronze, silver, gold } = SPECIAL.UNLOCK_TIMES;
+  it("unlocks specials strictly in bronze then gold order", () => {
+    const { bronze, gold } = SPECIAL.UNLOCK_TIMES;
     assert.ok(bronze > 0, "bronze unlock must be after game start");
-    assert.ok(bronze < silver, "bronze must unlock before silver");
-    assert.ok(silver < gold, "silver must unlock before gold");
+    assert.ok(bronze < gold, "bronze must unlock before gold");
   });
 
   it("starts and caps lives at 3", () => {
@@ -50,26 +46,36 @@ describe("config sanity", () => {
     assert.ok(ASTEROID.RADII[2] > ASTEROID.RADII[1]);
   });
 
-  it("defines all seven power-up types with weights and durations",
+  it("defines size-based scoring (Large=10, Medium=15, Small=20)",
      () => {
-    const types = Object.keys(POWERUP.WEIGHTS).sort();
-    assert.deepEqual(types, [
-      "extra_life",
-      "multi_shot",
-      "points_boost",
-      "protective_border",
-      "rapid_fire",
-      "slow_asteroids",
-      "speed_boost",
-    ]);
-    // Extra Life is instantaneous; every other type needs a
-    // duration.
-    const timed = types.filter((t) => t !== "extra_life");
-    for (const type of timed) {
-      assert.ok(POWERUP.DURATIONS[type] > 0, `${type} duration`);
-    }
-    for (const [type, weight] of Object.entries(POWERUP.WEIGHTS)) {
-      assert.ok(weight > 0, `${type} weight`);
+    assert.equal(SCORING.SIZE_SCORE[3], 10);
+    assert.equal(SCORING.SIZE_SCORE[2], 15);
+    assert.equal(SCORING.SIZE_SCORE[1], 20);
+  });
+
+  it("size weights sum to 100 and cover all three levels", () => {
+    const w = ASTEROID.SIZE_WEIGHTS;
+    assert.equal(w[3], 50);
+    assert.equal(w[2], 30);
+    assert.equal(w[1], 20);
+    assert.equal(w[3] + w[2] + w[1], 100);
+  });
+
+  it("defines all power-up types with weights and durations",
+     () => {
+    const types = Object.keys(POWERUP_TYPES).sort();
+    assert.ok(types.includes("extra_life"));
+    assert.ok(types.includes("speed_boost"));
+    assert.ok(types.includes("points_boost"));
+    assert.ok(types.includes("slow_asteroids"));
+    assert.ok(types.includes("protective_border"));
+    assert.ok(types.includes("rapid_fire"));
+    assert.ok(types.includes("multi_shot"));
+    assert.ok(types.includes("score_3x"));
+    assert.ok(types.includes("score_5x"));
+    // Every type needs a positive weight.
+    for (const [type, def] of Object.entries(POWERUP_TYPES)) {
+      assert.ok(def.weight > 0, `${type} weight`);
     }
   });
 

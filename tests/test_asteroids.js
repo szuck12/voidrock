@@ -1,5 +1,5 @@
 // test_asteroids.js
-// Asteroid spawn placement rules, split progression, movement, and
+// Asteroid spawn placement, split progression, movement, and
 // off-board culling.
 
 import { describe, it } from "node:test";
@@ -15,19 +15,34 @@ import {
 } from "./helpers.js";
 import {
   pickSpawnEdge,
+  pickSpawnSize,
   spawnAngle,
   spawnPosition,
   updateSpawning,
 } from "../src/systems/spawner.js";
 
 describe("asteroid spawning", () => {
-  it("uses only the top, left, and right edges", () => {
+  it("uses all four edges: top, bottom, left, and right", () => {
     const r = rng(7);
     const seen = new Set();
     for (let i = 0; i < 500; i++) {
       seen.add(pickSpawnEdge(r));
     }
-    assert.deepEqual([...seen].sort(), ["left", "right", "top"]);
+    assert.deepEqual([...seen].sort(),
+                     ["bottom", "left", "right", "top"]);
+  });
+
+  it("bottom-edge spawns sit at the bottom and head upward-ish",
+     () => {
+    const r = rng(24);
+    for (let i = 0; i < 100; i++) {
+      const pos = spawnPosition("bottom", r, null);
+      assert.ok(pos.y >= BOARD.HEIGHT - ASTEROID.EDGE_MARGIN,
+                `y=${pos.y}`);
+      assert.ok(pos.x > 0 && pos.x < BOARD.WIDTH);
+      const a = spawnAngle("bottom", r);
+      assert.ok(Math.sin(a) < -0.3, "must move into the board");
+    }
   });
 
   it("top-edge spawns sit at the top and head downward-ish", () => {
@@ -67,7 +82,7 @@ describe("asteroid spawning", () => {
     for (const seed of [1, 2, 3, 4, 5]) {
       const r = rng(seed * 1337);
       for (let i = 0; i < 300; i++) {
-        for (const edge of ["top", "left", "right"]) {
+        for (const edge of ["top", "bottom", "left", "right"]) {
           const pos = spawnPosition(edge, r, player);
           const dx = pos.x - player.x;
           const dy = pos.y - player.y;
@@ -79,13 +94,6 @@ describe("asteroid spawning", () => {
     }
   });
 
-  /**
-   * Player-shaped object for distance checks without importing
-   * the full player module.
-   *
-   * Returns:
-   *     Object with centre coordinates matching createPlayer().
-   */
   function createAsteroidPlayerStandIn() {
     return { x: BOARD.WIDTH / 2, y: BOARD.HEIGHT / 2 };
   }
@@ -110,15 +118,38 @@ describe("asteroid spawning", () => {
     const state = makeState();
     state.spawnTimer = 0;
     updateSpawning(state, 1);
-    assert.equal(state.asteroids.length, 1);
-    const a = state.asteroids[0];
-    assert.equal(a.level, 3);
+    assert.ok(state.asteroids.length >= 1);
+    const a = state.asteroids[state.asteroids.length - 1];
     const speed = Math.sqrt(a.vx * a.vx + a.vy * a.vy);
     assert.ok(speed > 0, "asteroid must move");
-    // Large asteroids move in the base-speed ballpark.
-    assert.ok(speed > ASTEROID.BASE_SPEED * 0.4 &&
-              speed < ASTEROID.BASE_SPEED * 2.2,
-              `speed=${speed}`);
+  });
+
+  it("pickSpawnSize produces all three size levels", () => {
+    const r = rng(99);
+    const seen = new Set();
+    for (let i = 0; i < 500; i++) {
+      seen.add(pickSpawnSize(r));
+    }
+    assert.deepEqual([...seen].sort(), [1, 2, 3]);
+  });
+
+  it("pickSpawnSize respects configured weight distribution", () => {
+    const r = rng(88);
+    const counts = { 1: 0, 2: 0, 3: 0 };
+    const total = 10000;
+    for (let i = 0; i < total; i++) {
+      counts[pickSpawnSize(r)]++;
+    }
+    // 50% large, 30% medium, 20% small with ±5% tolerance
+    const largeRatio = counts[3] / total;
+    const medRatio = counts[2] / total;
+    const smallRatio = counts[1] / total;
+    assert.ok(largeRatio > 0.44 && largeRatio < 0.56,
+              `large=${largeRatio}`);
+    assert.ok(medRatio > 0.24 && medRatio < 0.36,
+              `medium=${medRatio}`);
+    assert.ok(smallRatio > 0.14 && smallRatio < 0.26,
+              `small=${smallRatio}`);
   });
 });
 
@@ -146,7 +177,7 @@ describe("asteroid splitting", () => {
   });
 
   it("children inherit the special asteroid type", () => {
-    for (const type of ["bronze", "silver", "gold"]) {
+    for (const type of ["bronze", "gold"]) {
       const parent = placeAsteroid(makeState(),
                                    { level: 3, type });
       const children = splitAsteroid(parent, rng(9));
@@ -164,7 +195,6 @@ describe("asteroid splitting", () => {
       const speed = Math.sqrt(child.vx ** 2 + child.vy ** 2);
       assert.ok(speed > 0, "child must move");
     }
-    // Divergence: headings differ by more than a small epsilon.
     const angleOf = (c) => Math.atan2(c.vy, c.vx);
     let diff = Math.abs(angleOf(a) - angleOf(b));
     if (diff > Math.PI) {
@@ -174,7 +204,6 @@ describe("asteroid splitting", () => {
   });
 
   it("full progression stays bounded (7 asteroids total)", () => {
-    // large -> 2 medium -> 4 small -> gone.
     const state = makeState();
     placeAsteroid(state, { level: 3 });
     let frontier = [state.asteroids.pop()];
@@ -232,11 +261,9 @@ describe("asteroid movement and culling", () => {
       vy: 0,
       entered: true,
     });
-    // Drifting outward: first still inside the margin band...
     step(state, 0.25);
     assert.equal(state.asteroids.length, 1,
                  "kept inside the margin band");
-    // ...then past WIDTH + OFFBOARD_MARGIN.
     step(state, 0.25);
     assert.equal(state.asteroids.length, 0);
   });

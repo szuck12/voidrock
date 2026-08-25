@@ -9,13 +9,15 @@
 //     nearest along its path), so a single shot can never score
 //     twice.
 //   * Player vs asteroid respects invulnerability and the
-//     Protective Border effect; the border destroys the colliding
-//     asteroid instead of costing a life.
+//     Protective Border effect; the border redirects the
+//     colliding asteroid away from the ship without awarding
+//     points or destroying it.
 
-import { PARTICLES, PLAYER, SHAKE } from "../config.js";
+import { BOARD, PARTICLES, PLAYER, POWERUP, SHAKE } from "../config.js";
 import { splitAsteroid } from "../entities/asteroid.js";
 import { circlesOverlap, pointSegmentDistance } from "../utils/math.js";
 import { addScore, calculateAsteroidScore } from "./scoring.js";
+import { effectActive } from "./powerups.js";
 
 /**
  * Whether a projectile's swept path intersects an asteroid.
@@ -53,7 +55,9 @@ export function projectileHitsAsteroid(projectile, asteroid) {
  *         particles, shakeTimer).
  */
 export function resolveProjectileHits(state) {
-  const boostActive = effectOn(state, "points_boost");
+  const boostActive = effectActive(state, "points_boost");
+  const scoreMult3x = effectActive(state, "score_3x");
+  const scoreMult5x = effectActive(state, "score_5x");
 
   for (const p of state.projectiles) {
     if (!p.alive) {
@@ -80,7 +84,8 @@ export function resolveProjectileHits(state) {
     // One projectile, one hit: mark it dead before scoring so no
     // code path can credit it again.
     p.alive = false;
-    addScore(state, calculateAsteroidScore(target.type, boostActive));
+    addScore(state, calculateAsteroidScore(
+      target.level, target.type, boostActive, scoreMult3x, scoreMult5x));
     destroyAsteroid(state, target);
   }
 
@@ -110,13 +115,53 @@ export function destroyAsteroid(state, asteroid) {
 }
 
 /**
+ * Redirect an asteroid that contacted the protective border.
+ *
+ * The asteroid is pushed away from the border edge and its
+ * velocity is reflected so it bounces back into play.  No points
+ * are awarded and the asteroid is not destroyed.
+ *
+ * Args:
+ *     asteroid: The asteroid to redirect (mutated: x, y, vx, vy).
+ */
+function redirectAsteroid(asteroid) {
+  const inset = POWERUP.PROTECTIVE_BORDER_INSET;
+  const boardW = BOARD.WIDTH;
+  const boardH = BOARD.HEIGHT;
+
+  // Determine which edge the asteroid is closest to and reflect
+  // its velocity component, then push it back inside.
+  const distLeft = asteroid.x;
+  const distRight = boardW - asteroid.x;
+  const distTop = asteroid.y;
+  const distBottom = boardH - asteroid.y;
+
+  const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+
+  if (minDist === distLeft) {
+    asteroid.vx = Math.abs(asteroid.vx) * 1.05;
+    asteroid.x = inset;
+  } else if (minDist === distRight) {
+    asteroid.vx = -Math.abs(asteroid.vx) * 1.05;
+    asteroid.x = boardW - inset;
+  } else if (minDist === distTop) {
+    asteroid.vy = Math.abs(asteroid.vy) * 1.05;
+    asteroid.y = inset;
+  } else {
+    asteroid.vy = -Math.abs(asteroid.vy) * 1.05;
+    asteroid.y = boardH - inset;
+  }
+}
+
+/**
  * Resolve player vs asteroid contact for one step.
  *
- * While the Protective Border effect is active the collision
- * destroys the offending asteroid with normal score and no life
- * loss.  Otherwise a hit costs one life, grants a short
- * invulnerability window (preventing multi-life frames), recentres
- * the ship, and triggers death feedback.
+ * While the Protective Border effect is active, asteroids that
+ * overlap the player's protected zone are redirected away without
+ * destroying them and without awarding points.  Otherwise a hit
+ * costs one life, grants a short invulnerability window
+ * (preventing multi-life frames), recentres the ship, and
+ * triggers death feedback.
  *
  * Args:
  *     state: Game state (mutated).
@@ -126,29 +171,26 @@ export function resolvePlayerCollisions(state) {
     return;
   }
 
-  // Iterate a snapshot: destroyAsteroid() appends split children,
-  // and freshly spawned children must never resolve against the
-  // player in the same frame they were created.
+  const borderActive = effectActive(state, "protective_border");
+
+  // Iterate a snapshot: redirectAsteroid() or destroyAsteroid()
+  // mutates asteroid positions/velocities, and freshly processed
+  // asteroids must not resolve again in the same frame.
   const rocks = [...state.asteroids];
   for (const a of rocks) {
     if (!circlesOverlap(state.player.x, state.player.y,
                         state.player.radius, a.x, a.y, a.radius)) {
       continue;
     }
-    if (effectOn(state, "protective_border")) {
-      addScore(state,
-               calculateAsteroidScore(a.type,
-                                      effectOn(state, "points_boost")));
-      destroyAsteroid(state, a);
+    if (borderActive) {
+      // Protective border: redirect the asteroid, no score, no
+      // destruction.
+      redirectAsteroid(a);
       continue;
     }
     loseLife(state);
     return; // one life event per step maximum
   }
-
-  // Drop asteroids the border destroyed this step so callers see
-  // exactly the surviving field.
-  state.asteroids = state.asteroids.filter((a) => a.alive);
 }
 
 /**
@@ -179,20 +221,6 @@ export function loseLife(state) {
   state.player.vx = 0;
   state.player.vy = 0;
   state.player.invulnerableFor = PLAYER.INVULNERABLE_DURATION;
-}
-
-/**
- * Whether a timed effect is currently active on a game state.
- *
- * Args:
- *     state: Game state to inspect.
- *     type: Effect key ("points_boost" or "protective_border").
- *
- * Returns:
- *     true while elapsed time is before the effect's expiry.
- */
-function effectOn(state, type) {
-  return state.effects[type] != null && state.elapsed < state.effects[type];
 }
 
 /**

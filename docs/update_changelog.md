@@ -1,7 +1,7 @@
 # Updating CHANGELOG.md
 
 CHANGELOG.md is written for players and future maintainers, in
-that order. Conventions match quant_lab.
+that order.
 
 ## Format
 

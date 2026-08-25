@@ -1,17 +1,16 @@
 # Voidrock
 
-![version](https://img.shields.io/badge/version-1.0.0-blue)
+![version](https://img.shields.io/badge/version-1.2.0-blue)
 
 A minimalist arcade survival game inspired by Asteroids. Pilot a
 wedge-fighter inside a walled arena, split incoming rocks, chase
-rare gold asteroids for 5x scoring, and grab power-ups before they
+rare gold asteroids for 4x scoring, and grab power-ups before they
 fade — all in vanilla JavaScript on HTML5 Canvas with zero
 dependencies.
 
-The project deliberately mirrors the structure and documentation
-conventions of [quant_lab](../quant_lab): centralised constants,
-deterministic seeded logic, an exhaustive `node:test` suite, and a
-documentation-first workflow (see `docs/`).
+The project uses centralised constants, deterministic seeded logic,
+an exhaustive `node:test` suite, and a documentation-first workflow
+(see `docs/`).
 
 ---
 
@@ -60,35 +59,51 @@ voidrock/
 | Key | Action |
 | --- | --- |
 | `W A S D` / arrow keys | Thrust (ship turns toward movement) |
-| `SPACE` | Fire along the ship's facing |
+| `SPACE` | Ship fires |
 | `P` / `Esc` | Pause |
 | `ENTER` | Start / restart |
 
-Survive. Every second alive is worth one point; every hit is worth
-10 points regardless of asteroid size — but rare **special**
-asteroids multiply each hit:
+Survive. Every second alive is worth one point.  Asteroids award
+size-based scores on each hit:
+
+| Size | Points |
+| --- | --- |
+| Large | 10 |
+| Medium | 15 |
+| Small | 20 |
+
+Rare **special** asteroids multiply each hit:
 
 | Class | Rarity | Multiplier | Unlocks at |
 | --- | --- | --- | --- |
 | Bronze ring | 58% of specials | x2 | 25 s |
-| Silver ring | 30% of specials | x3 | 65 s |
-| Gold ring | 12% of specials | x5 | 115 s |
+| Gold ring | 42% of specials | x4 | 115 s |
 
-Seven power-ups drop roughly every 14 s (±4 s jitter), linger 12 s,
-and are collected by touch:
+Rocks spawn from all four edges and appear in three sizes
+(50% large, 30% medium, 20% small).  Smaller rocks are generally
+faster.  Rock speeds increase progressively as the game continues.
 
-| Power-up | Effect |
-| --- | --- |
-| Speed Boost | 1.5x thrust and top speed for 6 s |
-| Points Boost | All scoring doubled for 15 s |
-| Extra Life | +1 life, capped at 3; only drops when eligible |
-| Slow Asteroids | Asteroid motion scaled to 45% for 6 s |
-| Protective Border | Wall contact destroys asteroids (scores!) for 10 s |
-| Rapid Fire | Cooldown cut to 45% for 8 s |
-| Multi-Shot | Three-bolt spread for 8 s |
+Nine power-ups drop and are collected by touch:
 
-Difficulty ramps on a keyframed curve over five minutes: asteroids
-spawn faster, fly quicker, and specials appear more often.
+| Power-up | Effect | Duration |
+| --- | --- | --- |
+| Speed Boost | 1.5x thrust and top speed | 15 s |
+| Points Boost | All scoring doubled | 10 s |
+| Extra Life | +1 life, capped at 3; only drops when eligible | instant |
+| Slow Asteroids | Asteroid motion scaled to 45% | 10 s |
+| Protective Border | Border redirects asteroids away from the ship | 20 s |
+| Rapid Fire | Cooldown cut to 45% | 10 s |
+| Multi-Shot | Three-bolt spread | 10 s |
+| 3x Score | All scoring tripled | 8 s |
+| 5x Score | All scoring quintupled | 6 s |
+
+Score multipliers (Points Boost, 3x, 5x) combine multiplicatively.
+The 3x power-up unlocks after 60 s and the 5x after 120 s; both are
+rarer than standard power-ups.  Power-up generation frequency
+increases gradually as the game progresses.
+
+Difficulty ramps on a keyframed curve: asteroids spawn faster, fly
+quicker, and specials appear more often.
 
 ## Getting Started
 

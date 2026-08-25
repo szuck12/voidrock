@@ -4,8 +4,8 @@
 // Difficulty is driven purely by elapsed game time (not score) and
 // is expressed as three interpolated values: asteroid spawn
 // interval, asteroid speed multiplier, and the probability that a
-// spawned asteroid is special.  Special classes additionally unlock
-// in a fixed order (bronze -> silver -> gold) at configured times.
+// spawned asteroid is special.  Special classes unlock in a fixed
+// order (bronze -> gold) at configured times.
 
 import { DIFFICULTY, SPECIAL } from "../config.js";
 
@@ -70,7 +70,7 @@ function pickFrame(frame) {
  * Whether a special asteroid class has unlocked by a given time.
  *
  * Args:
- *     type: Special class ("bronze", "silver", or "gold").
+ *     type: Special class ("bronze" or "gold").
  *     elapsed: Seconds of elapsed game time.
  *
  * Returns:
@@ -83,8 +83,8 @@ export function canSpawnSpecial(type, elapsed) {
 /**
  * Ordered list of special classes that are unlocked so far.
  *
- * The order is always bronze < silver < gold because unlock times
- * are strictly increasing (enforced by tests), so callers can rely
+ * The order is always bronze < gold because unlock times are
+ * strictly increasing (enforced by tests), so callers can rely
  * on index 0 being bronze.
  *
  * Args:
@@ -94,7 +94,7 @@ export function canSpawnSpecial(type, elapsed) {
  *     Array of unlocked special class names in unlock order.
  */
 export function unlockedSpecials(elapsed) {
-  const order = ["bronze", "silver", "gold"];
+  const order = ["bronze", "gold"];
   return order.filter((type) => canSpawnSpecial(type, elapsed));
 }
 
@@ -104,8 +104,8 @@ export function unlockedSpecials(elapsed) {
  * A special asteroid only appears when the roll passes the current
  * special chance AND at least one class has unlocked.  The class
  * is then chosen proportionally to SPECIAL.TYPE_WEIGHTS restricted
- * to unlocked classes — gold therefore stays rare both because of
- * its small weight and its late unlock.
+ * to unlocked classes — gold stays rare both because of its
+ * smaller weight and its late unlock.
  *
  * Args:
  *     elapsed: Seconds of elapsed game time.

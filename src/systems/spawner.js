@@ -1,31 +1,59 @@
 // spawner.js
 // Asteroid spawn placement and scheduling.
 //
-// Asteroids enter from the top, left, or right edges only — never
-// the bottom — and never on top of the player.  Spawn cadence is
-// governed by the difficulty curve's spawn interval.
+// Asteroids enter from all four edges (top, bottom, left, right)
+// and never on top of the player.  Spawn cadence is governed by
+// the difficulty curve's spawn interval.  The spawned size is
+// chosen probabilistically from SIZE_WEIGHTS.
 
 import { ASTEROID, BOARD } from "../config.js";
 import { createAsteroid } from "../entities/asteroid.js";
 import { calculateDifficulty, rollSpecialType } from "./difficulty.js";
-import { range } from "../utils/rng.js";
+import { pickWeighted, range } from "../utils/rng.js";
 import { distance } from "../utils/math.js";
 
 /**
- * Pick a spawn edge (excluding the bottom).
+ * Pick a spawn edge (all four sides).
  *
  * Args:
  *     rng: Random source returning floats in [0, 1).
  *
  * Returns:
- *     One of "top", "left", "right".
+ *     One of "top", "bottom", "left", "right".
  */
 export function pickSpawnEdge(rng) {
   const roll = rng();
-  if (roll < 0.5) {
+  if (roll < 0.25) {
     return "top";
   }
-  return roll < 0.75 ? "left" : "right";
+  if (roll < 0.5) {
+    return "bottom";
+  }
+  if (roll < 0.75) {
+    return "left";
+  }
+  return "right";
+}
+
+/**
+ * Choose a weighted random size level for a new asteroid.
+ *
+ * Uses ASTEROID.SIZE_WEIGHTS to produce 50% large, 30% medium,
+ * 20% small.
+ *
+ * Args:
+ *     rng: Random source returning floats in [0, 1).
+ *
+ * Returns:
+ *     Size level: 3 (large), 2 (medium), or 1 (small).
+ */
+export function pickSpawnSize(rng) {
+  const weights = {};
+  for (const [level, weight] of Object.entries(ASTEROID.SIZE_WEIGHTS)) {
+    weights[Number(level)] = weight;
+  }
+  const key = pickWeighted(rng, weights);
+  return key != null ? Number(key) : 3;
 }
 
 /**
@@ -51,6 +79,9 @@ export function spawnPosition(edge, rng, player) {
     if (edge === "top") {
       x = range(rng, margin, BOARD.WIDTH - margin);
       y = -ASTEROID.RADII[3] * 0.5 + range(rng, 0, margin);
+    } else if (edge === "bottom") {
+      x = range(rng, margin, BOARD.WIDTH - margin);
+      y = BOARD.HEIGHT + ASTEROID.RADII[3] * 0.5 - range(rng, 0, margin);
     } else if (edge === "left") {
       x = -ASTEROID.RADII[3] * 0.5 + range(rng, 0, margin);
       y = range(rng, 0, BOARD.HEIGHT - margin);
@@ -68,6 +99,7 @@ export function spawnPosition(edge, rng, player) {
   // ship, which maximises the minimum guaranteed distance.
   const candidates = [
     { x: BOARD.WIDTH / 2, y: -10 },
+    { x: BOARD.WIDTH / 2, y: BOARD.HEIGHT + 10 },
     { x: -10, y: BOARD.HEIGHT / 2 },
     { x: BOARD.WIDTH + 10, y: BOARD.HEIGHT / 2 },
   ];
@@ -100,6 +132,9 @@ export function spawnAngle(edge, rng) {
   if (edge === "top") {
     return range(rng, Math.PI / 2 - spread, Math.PI / 2 + spread);
   }
+  if (edge === "bottom") {
+    return range(rng, -Math.PI / 2 - spread, -Math.PI / 2 + spread);
+  }
   if (edge === "left") {
     return range(rng, -spread, spread);
   }
@@ -109,10 +144,10 @@ export function spawnAngle(edge, rng) {
 /**
  * Run one step of asteroid spawning for a game state.
  *
- * Decrements the spawn timer; when it expires, spawns a large
- * asteroid (special class rolled per difficulty) unless the
- * MAX_COUNT cap is reached, then reloads the timer from the
- * current difficulty interval.
+ * Decrements the spawn timer; when it expires, spawns an
+ * asteroid (size chosen probabilistically, special class rolled
+ * per difficulty) unless the MAX_COUNT cap is reached, then
+ * reloads the timer from the current difficulty interval.
  *
  * Args:
  *     state: Game state (mutated: `asteroids`, `spawnTimer`).
@@ -126,11 +161,12 @@ export function updateSpawning(state, dt) {
   const elapsed = state.elapsed;
   const difficulty = calculateDifficulty(elapsed);
   const type = rollSpecialType(elapsed, state.rng);
+  const level = pickSpawnSize(state.rng);
 
   const edge = pickSpawnEdge(state.rng);
   const pos = spawnPosition(edge, state.rng, state.player);
   state.asteroids.push(createAsteroid({
-    level: 3,
+    level,
     x: pos.x,
     y: pos.y,
     angle: spawnAngle(edge, state.rng),

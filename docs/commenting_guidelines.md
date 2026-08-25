@@ -1,8 +1,8 @@
 # Commenting Guidelines
 
-Comments in Voidrock follow the same discipline as quant_lab.
-The goal: a reader should understand *why* from prose and *what*
-from code, never the reverse.
+Comments in Voidrock follow a consistent discipline.  The goal: a
+reader should understand *why* from prose and *what* from code,
+never the reverse.
 
 ## File Headers
 

@@ -2,21 +2,24 @@
 // HUD DOM synchronization.
 //
 // Reads game state and updates the score, lives, best score, and
-// active-effect chips above the playfield.  Only textContent and
+// active-power-up chips above the playfield.  Only textContent and
 // class toggling are used — no innerHTML — so no user-controlled
 // string can ever reach the parser.
 
-import { LIVES } from "./config.js";
-import { effectRemaining, POWERUP_META } from "./systems/powerups.js";
+import { LIVES } from "../config.js";
+import { effectRemaining } from "./systems/powerups.js";
+import { POWERUP_TYPES } from "../config.js";
 
 /** Timed effects shown as countdown chips, in display order. */
-const EFFECT_KEYS = [
+const CHIP_KEYS = [
   "speed_boost",
   "points_boost",
   "rapid_fire",
   "multi_shot",
   "slow_asteroids",
   "protective_border",
+  "score_3x",
+  "score_5x",
 ];
 
 /**
@@ -60,14 +63,14 @@ export function createHud(doc) {
   }
 
   /**
-   * Rebuild the active-effect chip row with countdowns.
+   * Rebuild the active-power-up chip row with countdowns.
    *
    * Args:
    *     state: Game state to read.
    */
   function syncChips(state) {
     const active = [];
-    for (const key of EFFECT_KEYS) {
+    for (const key of CHIP_KEYS) {
       const remaining = effectRemaining(state, key);
       if (remaining > 0) {
         active.push({ key, remaining });
@@ -81,8 +84,8 @@ export function createHud(doc) {
       // Same set: update only countdown text.
       const children = els.chips.children;
       for (let i = 0; i < active.length && i < children.length; i++) {
-        const text = `${POWERUP_META[active[i].key].label} ` +
-          `${Math.ceil(active[i].remaining)}s`;
+        const label = POWERUP_TYPES[active[i].key]?.label || active[i].key;
+        const text = `${label} ${Math.ceil(active[i].remaining)}s`;
         if (children[i].textContent !== text) {
           children[i].textContent = text;
         }
@@ -100,9 +103,9 @@ export function createHud(doc) {
     }
     const children = els.chips.children;
     for (let i = 0; i < active.length; i++) {
+      const label = POWERUP_TYPES[active[i].key]?.label || active[i].key;
       children[i].textContent =
-        `${POWERUP_META[active[i].key].label} ` +
-        `${Math.ceil(active[i].remaining)}s`;
+        `${label} ${Math.ceil(active[i].remaining)}s`;
     }
   }
 

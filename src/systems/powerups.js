@@ -7,27 +7,21 @@
 //   * At most MAX_ON_SCREEN power-ups exist at once.
 //   * Extra Life is eligible only when lives < MAX and no Extra
 //     Life is already on the field.
+//   * Duplicate power-ups cannot spawn when already active or on
+//     the board.
+//   * Power-ups unlock progressively: standard power-ups from the
+//     start, 3x after its unlock time, 5x after 3x unlocks.
+//   * Spawn frequency increases gradually over time.
 //   * Effects store absolute expiry times on state.elapsed, so
 //     pausing naturally freezes them.
 
-import { BOARD, LIVES, POWERUP } from "../config.js";
+import { BOARD, LIVES, POWERUP, POWERUP_TYPES } from "../config.js";
 import { pickWeighted, range } from "../utils/rng.js";
 import { circlesOverlap, distance } from "../utils/math.js";
 
-/** Display metadata for HUD and rendering. */
-export const POWERUP_META = Object.freeze({
-  speed_boost: { label: "SPEED" },
-  points_boost: { label: "POINTS 2X" },
-  extra_life: { label: "EXTRA LIFE" },
-  slow_asteroids: { label: "SLOW AST" },
-  protective_border: { label: "BORDER" },
-  rapid_fire: { label: "RAPID" },
-  multi_shot: { label: "MULTI" },
-});
-
 /**
- * Types that apply a timed effect on state.effects.  Extra Life is
- * instantaneous rather than timed.
+ * Types that apply a timed effect on state.effects.  Extra Life
+ * is instantaneous rather than timed.
  */
 const TIMED_TYPES = [
   "speed_boost",
@@ -36,6 +30,8 @@ const TIMED_TYPES = [
   "protective_border",
   "rapid_fire",
   "multi_shot",
+  "score_3x",
+  "score_5x",
 ];
 
 /**
@@ -88,7 +84,7 @@ export function effectRemaining(state, type) {
  * Create a power-up entity.
  *
  * Args:
- *     type: Power-up type key (POWERUP.WEIGHTS keys).
+ *     type: Power-up type key (POWERUP_TYPES keys).
  *     x: Position X.
  *     y: Position Y.
  *     bornAt: Elapsed game time at creation, used for the pulse
@@ -111,25 +107,57 @@ export function createPowerUp(type, x, y, bornAt) {
 /**
  * Build the eligibility-weighted pool for the next spawn.
  *
- * Extra Life's weight is zeroed while the player has maximum lives
- * or another Extra Life is already on the field, which prevents
- * spawning rather than merely hiding it.
+ * Rules applied:
+ *   - Extra Life: zeroed when lives >= MAX or already on field.
+ *   - Duplicate exclusion: if a type is already active as an effect
+ *     or already present on the board, its weight is zeroed.
+ *   - Unlock gating: types with an unlockTime are only available
+ *     after that time.
+ *   - Frequency scaling: weights grow with elapsed time to
+ *     increase overall spawn frequency.
  *
  * Args:
  *     state: Game state to inspect.
  *
  * Returns:
- *     Copy of POWERUP.WEIGHTS with ineligible types removed.
+ *     Copy of weights with ineligible types removed.
  */
 export function eligibleWeights(state) {
-  const weights = { ...POWERUP.WEIGHTS };
-  const extraLifeOnField = state.powerups.some(
-    (p) => p.type === "extra_life"
-  );
-  const livesFull = state.lives >= LIVES.MAX;
-  if (extraLifeOnField || livesFull) {
-    delete weights.extra_life;
+  const weights = {};
+  const elapsed = state.elapsed;
+
+  for (const [type, def] of Object.entries(POWERUP_TYPES)) {
+    // Unlock gating
+    if (def.unlockTime != null && elapsed < def.unlockTime) {
+      continue;
+    }
+
+    // Extra Life eligibility
+    if (type === "extra_life") {
+      if (state.lives >= LIVES.MAX) {
+        continue;
+      }
+      if (state.powerups.some((p) => p.type === "extra_life")) {
+        continue;
+      }
+    }
+
+    // Duplicate exclusion: skip if already active or on board
+    if (TIMED_TYPES.includes(type)) {
+      if (effectActive(state, type)) {
+        continue;
+      }
+    }
+    if (state.powerups.some((p) => p.type === type)) {
+      continue;
+    }
+
+    // Progressive frequency scaling: base weight grows by ~50% at
+    // 5 min and ~100% at 10 min.
+    const freqScale = 1 + elapsed / 600;
+    weights[type] = def.weight * freqScale;
   }
+
   return weights;
 }
 
@@ -230,11 +258,11 @@ export function applyPowerUp(state, type) {
     state.lives = Math.min(LIVES.MAX, state.lives + 1);
     return;
   }
-  const duration = POWERUP.DURATIONS[type];
-  if (duration == null) {
+  const def = POWERUP_TYPES[type];
+  if (!def || def.duration <= 0) {
     return;
   }
-  state.effects[type] = state.elapsed + duration;
+  state.effects[type] = state.elapsed + def.duration;
 }
 
 /**

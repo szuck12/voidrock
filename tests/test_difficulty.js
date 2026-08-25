@@ -61,16 +61,6 @@ describe("difficulty curve", () => {
 });
 
 describe("difficulty integration", () => {
-  /**
-   * Count asteroid spawns over a simulated window.
-   *
-   * Args:
-   *     startElapsed: Elapsed-time offset (drives difficulty).
-   *     seconds: Window length.
-   *
-   * Returns:
-   *     Number of asteroids spawned in the window.
-   */
   function spawnsInWindow(startElapsed, seconds) {
     const state = makeState();
     state.elapsed = startElapsed;
@@ -96,9 +86,8 @@ describe("difficulty integration", () => {
   it("caps total asteroids at MAX_COUNT under sustained spawning",
      () => {
     const state = makeState();
-    state.elapsed = 300; // fastest interval
+    state.elapsed = 300;
     let peak = 0;
-    // No movement/culling here: worst case accumulation.
     for (let i = 0; i < 60 * 120; i++) {
       updateSpawning(state, 1 / 60);
       peak = Math.max(peak, state.asteroids.length);
@@ -107,11 +96,8 @@ describe("difficulty integration", () => {
   });
 
   it("speedMult flows into spawned asteroid velocities", () => {
-    // Same seed, two difficulty levels: speed roughly doubles.
     function rolledSpeed(elapsedOffset) {
-      const r1 = rng(555);
       const r2 = rng(555);
-      void r1;
       return createAsteroid({
         level: 3,
         x: -20,
@@ -142,6 +128,6 @@ describe("difficulty integration", () => {
         lastLen = list.length;
       }
     }
-    assert.deepEqual(seen, ["bronze", "silver", "gold"]);
+    assert.deepEqual(seen, ["bronze", "gold"]);
   });
 });

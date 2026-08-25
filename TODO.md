@@ -20,6 +20,9 @@ A living list of tasks and ideas for Voidrock. See
 - [x] 134-test deterministic suite via node:test (#testing) —
       2026-08-22
 - [x] GitHub Pages deployment workflow (#infra) — 2026-08-22
+- [x] v1.2.0: size-based scoring, 3x/5x power-ups, silver removed,
+      4-sided spawns, progressive power-up frequency (#gameplay) —
+      2026-08-24
 
 ## High Priority
 

@@ -1,7 +1,7 @@
 # Code Review Guide
 
 Expectations for reviewing (and self-reviewing) changes to
-Voidrock. Mirrors quant_lab's guide with game-specific checks.
+Voidrock.
 
 ## Before Requesting Review
 

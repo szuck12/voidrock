@@ -3,11 +3,11 @@
 //
 // All scoring flows through this module so the rules are central,
 // testable, and free of hidden multipliers.  Rules:
-//   * every hit on any asteroid scores BASE_HIT_SCORE (size does
-//     not matter),
+//   * every hit scores SIZE_SCORE[asteroid.level] (size matters),
 //   * special asteroid classes multiply each hit
-//     (bronze 2x, silver 3x, gold 5x),
-//   * an active Points Boost doubles the final value,
+//     (bronze 2x, gold 4x),
+//   * active score power-ups (Points Boost, 3x, 5x) multiply
+//     multiplicatively,
 //   * surviving accrues TIME_SCORE_PER_SECOND continuously.
 
 import { SCORING } from "../config.js";
@@ -15,19 +15,28 @@ import { SCORING } from "../config.js";
 /**
  * Compute the points awarded for one hit on an asteroid.
  *
+ * The base score depends on asteroid size (level).  Multipliers
+ * are applied in order: special class, then any active score
+ * power-ups.  All multipliers are applied multiplicatively.
+ *
  * Args:
- *     specialType: Asteroid class ("normal", "bronze", "silver",
- *         or "gold").
+ *     level: Asteroid size level (3=large, 2=medium, 1=small).
+ *     specialType: Asteroid class ("normal", "bronze", or "gold").
  *     boostActive: Whether the Points Boost power-up is active.
+ *     scoreMult3x: Whether the 3x power-up is active.
+ *     scoreMult5x: Whether the 5x power-up is active.
  *
  * Returns:
- *     Integer points for the hit. Example with base 10: a silver
- *     asteroid hit while boosting scores 10 * 3 * 2 = 60.
+ *     Integer points for the hit.
  */
-export function calculateAsteroidScore(specialType, boostActive) {
-  const mult = SCORING.SPECIAL_MULT[specialType] ?? 1;
+export function calculateAsteroidScore(level, specialType, boostActive,
+                                      scoreMult3x, scoreMult5x) {
+  const base = SCORING.SIZE_SCORE[level] ?? SCORING.SIZE_SCORE[3];
+  const specialMult = SCORING.SPECIAL_MULT[specialType] ?? 1;
   const boost = boostActive ? SCORING.POINTS_BOOST_MULT : 1;
-  return Math.round(SCORING.BASE_HIT_SCORE * mult * boost);
+  const mult3 = scoreMult3x ? 3 : 1;
+  const mult5 = scoreMult5x ? 5 : 1;
+  return Math.round(base * specialMult * boost * mult3 * mult5);
 }
 
 /**

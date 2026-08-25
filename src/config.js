@@ -43,8 +43,8 @@ export const PROJECTILE = Object.freeze({
 /** Asteroid geometry, movement, and spawning. */
 export const ASTEROID = Object.freeze({
   RADII: Object.freeze({ 3: 38, 2: 23, 1: 12 }), // by size level
-  BASE_SPEED: 70, // px/s at large size, before difficulty scaling
-  SPEED_PER_LEVEL: 30, // smaller levels are proportionally faster
+  BASE_SPEED: 115, // px/s at large size, before difficulty scaling
+  SPEED_PER_LEVEL: 50, // smaller levels are proportionally faster
   SPEED_VARIANCE: 0.35, // +/- fraction applied to spawn speed
   MIN_PLAYER_DISTANCE: 150, // px; spawns never start on the player
   EDGE_MARGIN: 60, // max depth inside the board for a spawn point
@@ -54,37 +54,43 @@ export const ASTEROID = Object.freeze({
   MAX_COUNT: 24, // cap on simultaneous asteroids
   OFFBOARD_MARGIN: 80, // px past the board before removal
   ENTER_GRACE_SECONDS: 3, // s an off-board asteroid may linger
+
+  /**
+   * Weighted probability distribution for spawned asteroid sizes.
+   * Keys are size levels (3=large, 2=medium, 1=small); values
+   * are relative weights.  The spawner normalises these into
+   * probabilities (50% large, 30% medium, 20% small).
+   */
+  SIZE_WEIGHTS: Object.freeze({ 3: 50, 2: 30, 1: 20 }),
 });
 
 /** Scoring rules. */
 export const SCORING = Object.freeze({
-  BASE_HIT_SCORE: 10, // every asteroid hit scores this, any size
+  /** Base points by asteroid size level. */
+  SIZE_SCORE: Object.freeze({ 3: 10, 2: 15, 1: 20 }),
   TIME_SCORE_PER_SECOND: 1, // survival score accrual rate
   POINTS_BOOST_MULT: 2, // multiplier while Points Boost is active
   SPECIAL_MULT: Object.freeze({
     normal: 1,
     bronze: 2,
-    silver: 3,
-    gold: 5,
+    gold: 4,
   }),
 });
 
 /**
  * Special asteroid unlock schedule (seconds of elapsed game time).
- * Order matters: bronze must unlock before silver, silver before
- * gold.  Verified by tests (see tests/test_config.js).
+ * Order matters: bronze must unlock before gold.  Verified by
+ * tests (see tests/test_config.js).
  */
 export const SPECIAL = Object.freeze({
   UNLOCK_TIMES: Object.freeze({
     bronze: 25,
-    silver: 65,
     gold: 115,
   }),
   // Relative weights used once a special asteroid is rolled.
   TYPE_WEIGHTS: Object.freeze({
     bronze: 0.58,
-    silver: 0.3,
-    gold: 0.12,
+    gold: 0.42,
   }),
 });
 
@@ -107,7 +113,63 @@ export const DIFFICULTY = Object.freeze({
   ]),
 });
 
-/** Power-up system tuning and per-type definitions. */
+/**
+ * Power-up definitions.  Each type is a self-contained record
+ * describing everything the spawn-selection and application
+ * systems need: display label, duration, spawn weight, and
+ * optional eligibility / unlock constraints.
+ */
+export const POWERUP_TYPES = Object.freeze({
+  speed_boost: Object.freeze({
+    label: "SPEED",
+    duration: 15,
+    weight: 20,
+  }),
+  points_boost: Object.freeze({
+    label: "POINTS 2X",
+    duration: 10,
+    weight: 18,
+  }),
+  slow_asteroids: Object.freeze({
+    label: "SLOW ASTEROIDS",
+    duration: 10,
+    weight: 16,
+  }),
+  protective_border: Object.freeze({
+    label: "BORDER",
+    duration: 20,
+    weight: 16,
+  }),
+  rapid_fire: Object.freeze({
+    label: "RAPID SHOT",
+    duration: 10,
+    weight: 14,
+  }),
+  multi_shot: Object.freeze({
+    label: "MULTI SHOT",
+    duration: 10,
+    weight: 10,
+  }),
+  extra_life: Object.freeze({
+    label: "EXTRA LIFE",
+    duration: 0, // instant
+    weight: 8,
+  }),
+  score_3x: Object.freeze({
+    label: "3X",
+    duration: 8,
+    weight: 4,
+    unlockTime: 60, // becomes available after 60s
+  }),
+  score_5x: Object.freeze({
+    label: "5X",
+    duration: 6,
+    weight: 2,
+    unlockTime: 120, // becomes available after 120s (after 3x)
+  }),
+});
+
+/** Power-up system tuning. */
 export const POWERUP = Object.freeze({
   SPAWN_INTERVAL: 14, // mean seconds between spawn attempts
   SPAWN_JITTER: 4, // +/- uniform jitter on the interval
@@ -116,30 +178,24 @@ export const POWERUP = Object.freeze({
   RADIUS: 16,
   MIN_PLAYER_DISTANCE: 90, // px; never spawn on top of the ship
 
-  DURATIONS: Object.freeze({
-    speed_boost: 6,
-    points_boost: 15,
-    slow_asteroids: 6,
-    protective_border: 10,
-    rapid_fire: 8,
-    multi_shot: 8,
-  }),
-
   // Effect magnitudes.
   SPEED_BOOST_MULT: 1.5, // thrust/top-speed multiplier while boosting
   SLOW_ASTEROID_FACTOR: 0.45, // asteroid displacement factor while slow
+  PROTECTIVE_BORDER_INSET: 30, // px inside the board edge for the barrier
 
-  // Base selection weights; eligibility may zero individual types
-  // (e.g. Extra Life while already at maximum lives).
-  WEIGHTS: Object.freeze({
-    speed_boost: 20,
-    points_boost: 18,
-    slow_asteroids: 16,
-    protective_border: 16,
-    rapid_fire: 14,
-    multi_shot: 10,
-    extra_life: 8,
-  }),
+  // Derived from POWERUP_TYPES for backward-compatible access.
+  DURATIONS: Object.freeze(
+    Object.fromEntries(
+      Object.entries(POWERUP_TYPES)
+        .filter(([, v]) => v.duration > 0)
+        .map(([k, v]) => [k, v.duration])
+    )
+  ),
+  WEIGHTS: Object.freeze(
+    Object.fromEntries(
+      Object.entries(POWERUP_TYPES).map(([k, v]) => [k, v.weight])
+    )
+  ),
 });
 
 /** Particle effects. */

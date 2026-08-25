@@ -9,26 +9,32 @@ moving for N seconds).
 
 ## 1. Config — `src/config.js`
 
-Add the type's tunables inside `POWERUP`:
+Add the type to the `POWERUP_TYPES` object in `config.js`:
 
-* `DURATIONS.time_freeze: 5` (omit for instant effects).
-* `WEIGHTS.time_freeze: <weight>` relative to the existing pool.
+```js
+time_freeze: {
+  duration: 5,
+  weight: 12,
+  unlockTime: 0,
+  label: "FREEZE",
+  color: "#00cccc",
+  glyph: "f",
+},
+```
 
-Weights are relative, not percentages; pick something in line with
-neighbours and justify it in a comment.
+* `duration`: seconds the effect lasts; use `0` for instant effects.
+* `weight`: relative spawn weight; pick something in line with
+  neighbours and justify it in a comment.
+* `unlockTime`: elapsed seconds before this type can appear in the
+  eligible pool; use `0` for always-available.
+* `label`: short HUD chip text (max 8 characters).
+* `color`: HUD chip and capsule colour.
+* `glyph`: single character drawn inside the capsule.
 
-## 2. Metadata — `src/systems/powerups.js`
+Weights are relative, not percentages. The spawner normalises them
+automatically.
 
-* Add a label to `POWERUP_META` (HUD chip text, e.g.
-  `"FREEZE"`).
-* If the effect is timed, add the key to `TIMED_TYPES` so
-  `expireEffects()` clears it. Instant effects (like Extra Life)
-  are handled directly in `applyPowerUp()` instead.
-
-No other system changes should be needed here: scheduling,
-eligibility, collection, and expiry are generic.
-
-## 3. Effect Hook — wherever gameplay reads it
+## 2. Effect Hook — wherever gameplay reads it
 
 Timed effects are read with `effectActive(state, "time_freeze")`
 (or `effectRemaining` for countdown UI). Apply the effect at the
@@ -43,28 +49,33 @@ Follow the Slow Asteroids precedent: scale *displacement*, never
 mutate stored velocities, so expiring the effect restores motion
 with zero bookkeeping.
 
-## 4. Rendering — `src/render.js`
+For instant effects like Extra Life, handle them directly in
+`applyPowerUp()`.
 
-Draw the capsule generically via `POWERUP_META` colours/glyphs;
+## 3. Rendering — `src/render.js`
+
+Draw the capsule generically via `POWERUP_TYPES` colours/glyphs;
 add a case to `drawPowerUpGlyph()` for the new icon. Glyphs are
 vector-drawn paths, not fonts, so they stay crisp when scaled.
 If the effect needs an on-ship indicator, follow the dashed
 shield ring pattern used by Protective Border.
 
-## 5. Tests
+## 4. Tests
 
 Add cases to `tests/test_powerups.js`, mirroring existing ones:
 
-* duration matches config exactly;
+* duration matches `POWERUP_TYPES.time_freeze.duration` exactly;
 * effect activates on apply and expires one frame past its
   duration (remember: `advance()` quantises to whole frames);
 * gameplay hook behaves while active and after expiry;
-* eligibility rules if any (see Extra Life's suppression test).
+* eligibility rules if any (see Extra Life's suppression test);
+* unlock gating: the type must not appear in `eligibleWeights()`
+  before its `unlockTime`.
 
 Keep every scenario deterministic: seeded state from `helpers.js`,
 fixed steps, exact assertions.
 
-## 6. Docs
+## 5. Docs
 
 * `docs/game_mechanics.md`: add the row to the power-up table.
 * `README.md`: extend the power-up list.
@@ -73,9 +84,9 @@ fixed steps, exact assertions.
 
 ## Checklist
 
-- [ ] config values + weights
-- [ ] POWERUP_META label (+ TIMED_TYPES if timed)
+- [ ] entry in `POWERUP_TYPES` with duration, weight, unlockTime,
+      label, color, glyph
 - [ ] effect hooked at the mechanic's single read site
 - [ ] glyph drawn; ship/fx indicator if needed
-- [ ] deterministic tests green (`npm test`)
+- [ ] deterministic tests green (`node run_tests.js`)
 - [ ] README / game_mechanics / CHANGELOG updated

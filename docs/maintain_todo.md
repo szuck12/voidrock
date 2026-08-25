@@ -1,8 +1,7 @@
 # Maintaining TODO.md
 
 TODO.md is the project's single living task list. These rules
-mirror quant_lab's conventions; keep both files structurally
-identical.
+keep the file structurally consistent.
 
 ## Sections
 

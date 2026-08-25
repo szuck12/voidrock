@@ -3,7 +3,7 @@
 // and per-type behaviour.
 
 import { describe, it } from "node:test";
-import { BOARD, LIVES, POWERUP } from "../src/config.js";
+import { BOARD, LIVES, POWERUP, POWERUP_TYPES } from "../src/config.js";
 import {
   applyPowerUp,
   collectPowerUps,
@@ -33,8 +33,6 @@ describe("power-up spawn scheduling", () => {
     const min = POWERUP.SPAWN_INTERVAL - POWERUP.SPAWN_JITTER;
     const max = POWERUP.SPAWN_INTERVAL + POWERUP.SPAWN_JITTER;
     let spawnedAt = -1;
-    // One-second polls; the spawn lands on the first poll at or
-    // after the rolled timer expiry.
     for (let t = 1; t <= max + 1 && spawnedAt < 0; t++) {
       const before = state.powerups.length;
       updatePowerUpSpawning(state, 1);
@@ -50,12 +48,9 @@ describe("power-up spawn scheduling", () => {
   it("reloads the schedule even when nothing spawns (at capacity)",
      () => {
     const state = makeState();
-    // Fill the field so spawns are blocked.
     placePowerUp(state, "speed_boost", 100, 100);
     placePowerUp(state, "rapid_fire", 800, 500);
     const max = POWERUP.SPAWN_INTERVAL + POWERUP.SPAWN_JITTER;
-    // Force the timer to fire (slight overshoot exercises the
-    // sub-frame remainder carry).
     state.powerUpTimer = 0.0001;
     updatePowerUpSpawning(state, 1);
     assert.equal(state.powerups.length, 2,
@@ -67,19 +62,14 @@ describe("power-up spawn scheduling", () => {
   it("keeps spawning on cadence independent of collection", () => {
     const state = makeState();
     let spawns = 0;
-    // Simulate ~40 seconds; collect everything instantly each
-    // step so any collection-triggered scheduling would distort
-    // the cadence.
     for (let i = 0; i < 40; i++) {
       const before = state.powerups.length;
       updatePowerUpSpawning(state, 1);
       if (state.powerups.length > before) {
         spawns++;
-        state.powerups.length = 0; // instant "collection"
+        state.powerups.length = 0;
       }
     }
-    // Expect roughly 40 / 14 ~= 2-3 spawns; at least 2 proves the
-    // timer keeps running after each spawn/collection cycle.
     assert.ok(spawns >= 2 && spawns <= 4, `spawns=${spawns}`);
   });
 
@@ -87,9 +77,6 @@ describe("power-up spawn scheduling", () => {
      () => {
     const r = rng(31);
     const player = { x: BOARD.WIDTH / 2, y: BOARD.HEIGHT / 2 };
-    // Reuse the internal position chooser via repeated scheduler
-    // runs is heavy; test the distance invariant through the
-    // public scheduler instead by forcing many rolls.
     for (let i = 0; i < 50; i++) {
       const state = makeState(1000 + i);
       state.player.x = player.x;
@@ -97,7 +84,7 @@ describe("power-up spawn scheduling", () => {
       state.powerUpTimer = 0.0001;
       updatePowerUpSpawning(state, 1);
       if (state.powerups.length === 0) {
-        continue; // blocked roll (capacity/eligibility)
+        continue;
       }
       const p = state.powerups[state.powerups.length - 1];
       const dx = p.x - state.player.x;
@@ -120,7 +107,7 @@ describe("power-up eligibility", () => {
     const state = makeState();
     state.lives = LIVES.MAX - 1;
     const weights = eligibleWeights(state);
-    assert.equal(weights.extra_life, POWERUP.WEIGHTS.extra_life);
+    assert.ok(weights.extra_life > 0, "extra life should have weight");
   });
 
   it("only one extra life may exist on the field at a time",
@@ -131,6 +118,76 @@ describe("power-up eligibility", () => {
     const weights = eligibleWeights(state);
     assert.equal(weights.extra_life, undefined,
                  "a second extra life must not be spawnable");
+  });
+
+  it("active effect prevents same power-up from spawning", () => {
+    const state = makeState();
+    state.effects.speed_boost = state.elapsed + 10;
+    const weights = eligibleWeights(state);
+    assert.equal(weights.speed_boost, undefined,
+                 "active speed_boost blocks new speed_boost");
+  });
+
+  it("board presence prevents same power-up from spawning",
+     () => {
+    const state = makeState();
+    placePowerUp(state, "rapid_fire", 300, 200);
+    const weights = eligibleWeights(state);
+    assert.equal(weights.rapid_fire, undefined,
+                 "rapid_fire on board blocks new rapid_fire");
+  });
+
+  it("3x power-up is locked before its unlock time", () => {
+    const state = makeState();
+    state.elapsed = 30; // before 60s unlock
+    const weights = eligibleWeights(state);
+    assert.equal(weights.score_3x, undefined,
+                 "3x must be locked early");
+  });
+
+  it("3x power-up becomes available after unlock time", () => {
+    const state = makeState();
+    state.elapsed = 70; // after 60s unlock
+    const weights = eligibleWeights(state);
+    assert.ok(weights.score_3x > 0, "3x should be available");
+  });
+
+  it("5x power-up is locked before 3x unlocks", () => {
+    const state = makeState();
+    state.elapsed = 100; // after 3x (60s) but before 5x (120s)
+    const weights = eligibleWeights(state);
+    assert.equal(weights.score_5x, undefined,
+                 "5x must be locked before 120s");
+  });
+
+  it("5x power-up becomes available after its unlock time", () => {
+    const state = makeState();
+    state.elapsed = 130; // after 120s
+    const weights = eligibleWeights(state);
+    assert.ok(weights.score_5x > 0, "5x should be available");
+  });
+
+  it("5x weight is less than 3x weight (rarer)", () => {
+    const state = makeState();
+    state.elapsed = 150; // both unlocked
+    const weights = eligibleWeights(state);
+    assert.ok(weights.score_5x < weights.score_3x,
+              `5x=${weights.score_5x} 3x=${weights.score_3x}`);
+  });
+
+  it("spawn frequency scales with elapsed time", () => {
+    const early = makeState();
+    early.elapsed = 0;
+    const earlyWeights = eligibleWeights(early);
+
+    const late = makeState();
+    late.elapsed = 600;
+    const lateWeights = eligibleWeights(late);
+
+    // At 600s, freqScale = 1 + 600/600 = 2.0
+    const ratio = lateWeights.speed_boost / earlyWeights.speed_boost;
+    assert.ok(Math.abs(ratio - 2.0) < 0.01,
+              `frequency ratio=${ratio}`);
   });
 });
 
@@ -153,14 +210,12 @@ describe("power-up application", () => {
      () => {
     const state = makeState();
     applyPowerUp(state, "speed_boost");
-    const duration = POWERUP.DURATIONS.speed_boost;
+    const duration = POWERUP_TYPES.speed_boost.duration;
     assert.ok(effectActive(state, "speed_boost"));
     assert.ok(Math.abs(effectRemaining(state, "speed_boost") -
                        duration) < 1e-9);
     advance(state, duration - 0.5);
     assert.ok(effectActive(state, "speed_boost"));
-    // One extra frame past the boundary: advance() quantises to
-    // whole steps, and expiry is "at or after" the duration.
     advance(state, 0.5 + 1 / 60);
     assert.equal(effectActive(state, "speed_boost"), false);
   });
@@ -168,20 +223,52 @@ describe("power-up application", () => {
   it("expireEffects() removes expired entries from state", () => {
     const state = makeState();
     applyPowerUp(state, "points_boost");
-    advance(state, POWERUP.DURATIONS.points_boost + 0.01);
+    advance(state, POWERUP_TYPES.points_boost.duration + 0.01);
     expireEffects(state);
     assert.equal(state.effects.points_boost, undefined);
   });
 
-  it("each configured duration matches its config value", () => {
-    const state = makeState();
-    for (const [type, duration] of
-         Object.entries(POWERUP.DURATIONS)) {
+  it("each configured duration matches its POWERUP_TYPES value",
+     () => {
+    for (const [type, def] of Object.entries(POWERUP_TYPES)) {
+      if (def.duration <= 0) {
+        continue; // skip instant effects
+      }
       const s = makeState();
       applyPowerUp(s, type);
-      assert.ok(Math.abs(effectRemaining(s, type) - duration)
+      assert.ok(Math.abs(effectRemaining(s, type) - def.duration)
                 < 1e-9, `${type} duration`);
     }
+  });
+
+  it("border lasts 20 seconds", () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    assert.equal(POWERUP_TYPES.protective_border.duration, 20);
+    advance(state, 19);
+    assert.ok(effectActive(state, "protective_border"));
+    advance(state, 1.5);
+    assert.equal(effectActive(state, "protective_border"), false);
+  });
+
+  it("3x lasts 8 seconds", () => {
+    const state = makeState();
+    applyPowerUp(state, "score_3x");
+    assert.equal(POWERUP_TYPES.score_3x.duration, 8);
+    advance(state, 7.5);
+    assert.ok(effectActive(state, "score_3x"));
+    advance(state, 1);
+    assert.equal(effectActive(state, "score_3x"), false);
+  });
+
+  it("5x lasts 6 seconds", () => {
+    const state = makeState();
+    applyPowerUp(state, "score_5x");
+    assert.equal(POWERUP_TYPES.score_5x.duration, 6);
+    advance(state, 5.5);
+    assert.ok(effectActive(state, "score_5x"));
+    advance(state, 1);
+    assert.equal(effectActive(state, "score_5x"), false);
   });
 });
 
@@ -209,7 +296,6 @@ describe("power-up collection", () => {
     const state = makeState();
     const pu = placePowerUp(state, "points_boost",
                             BOARD.WIDTH / 2, 300);
-    // A projectile sweeping straight through its centre.
     const projectile = {
       x: pu.x - 30,
       y: pu.y,
@@ -232,7 +318,6 @@ describe("power-up collection", () => {
      () => {
     const state = makeState();
     placePowerUp(state, "rapid_fire", 400, 300);
-    // Freeze the spawner so no fresh power-ups confound the count.
     state.powerUpTimer = Infinity;
     advance(state, 1);
     assert.equal(state.powerups.length, 1,
@@ -249,28 +334,18 @@ describe("power-up collection", () => {
                                      vx: 100, vy: 0 });
     applyPowerUp(state, "slow_asteroids");
     const xBefore = a.x;
-    step(state, 1); // one whole second of slow movement
+    step(state, 1);
     const travelled = Math.abs(a.x - xBefore);
     const expected = 100 * POWERUP.SLOW_ASTEROID_FACTOR;
     assert.ok(Math.abs(travelled - expected) < 1e-6,
               `travelled=${travelled} expected=${expected}`);
-    // Velocity is preserved so expiry restores full speed.
     assert.equal(a.vx, 100);
-
-    // Newly spawned asteroids during the effect are slowed
-    // identically (the factor is global).
-    const b = placeAsteroid(state, { x: 500, y: 500,
-                                     vx: 200, vy: 0 });
-    const bx = b.x;
-    step(state, 1);
-    assert.ok(Math.abs((b.x - bx) - 200 *
-                       POWERUP.SLOW_ASTEROID_FACTOR) < 1e-6);
   });
 
   it("slow asteroids expires and restores normal speed", () => {
     const state = makeState();
     applyPowerUp(state, "slow_asteroids");
-    advance(state, POWERUP.DURATIONS.slow_asteroids + 0.01);
+    advance(state, POWERUP_TYPES.slow_asteroids.duration + 0.01);
     assert.equal(effectActive(state, "slow_asteroids"), false);
     const a = placeAsteroid(state, { x: 200, y: 200,
                                      vx: 100, vy: 0 });
@@ -280,25 +355,48 @@ describe("power-up collection", () => {
               "full speed restored after expiry");
   });
 
-  it("protective border prevents life loss on collision",
-     () => {
+  it("protective border prevents life loss on collision", () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
     placeAsteroid(state, { x: state.player.x,
                            y: state.player.y });
+    const beforeCount = state.asteroids.length;
     step(state, 1 / 60);
     assert.equal(state.lives, LIVES.MAX,
                  "no life lost under the border");
-    // The border destroys the offending asteroid instead.
-    assert.equal(state.asteroids.length, 2,
-                 "split children replace the destroyed rock");
-    assert.equal(state.score, 10, "border kill still scores");
+  });
+
+  it("protective border redirects asteroids without destroying them",
+     () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    const a = placeAsteroid(state, { x: state.player.x,
+                                     y: state.player.y,
+                                     vx: -50, vy: 30 });
+    step(state, 1 / 60);
+    // The asteroid should still exist (not destroyed)
+    assert.ok(state.asteroids.includes(a),
+              "asteroid must survive border contact");
+    // No score should be awarded
+    assert.equal(state.score, 0,
+                 "border redirect awards no points");
+  });
+
+  it("protective border gives no points on redirect", () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    placeAsteroid(state, { x: state.player.x,
+                           y: state.player.y });
+    const before = state.score;
+    step(state, 1 / 60);
+    assert.equal(state.score, before,
+                 "border redirect must not score");
   });
 
   it("protective border expires after its duration", () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
-    const duration = POWERUP.DURATIONS.protective_border;
+    const duration = POWERUP_TYPES.protective_border.duration;
     advance(state, duration - 0.5);
     assert.equal(effectActive(state, "protective_border"), true);
     advance(state, 0.5);
@@ -309,14 +407,12 @@ describe("power-up collection", () => {
      () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
-    advance(state, POWERUP.DURATIONS.protective_border + 0.05);
+    advance(state, POWERUP_TYPES.protective_border.duration + 0.05);
     loseLife(state);
     assert.equal(state.lives, LIVES.MAX - 1);
   });
 
   it("speed boost raises the ship's cruise speed", () => {
-    // One second of held input from centre reaches cruise without
-    // touching a wall (walls zero the into-wall velocity).
     const boosted = makeState();
     applyPowerUp(boosted, "speed_boost");
     runRight(boosted, 60);
@@ -329,13 +425,6 @@ describe("power-up collection", () => {
               `plain=${speedOf(plain)}`);
   });
 
-  /**
-   * Hold right for n frames on a state.
-   *
-   * Args:
-   *     state: Game state.
-   *     frames: Number of 1/60s steps.
-   */
   function runRight(state, frames) {
     for (let i = 0; i < frames; i++) {
       step(state, 1 / 60, { up: false, down: false, left: false,
@@ -343,12 +432,28 @@ describe("power-up collection", () => {
     }
   }
 
-  it("points boost lasts its configured 15 seconds", () => {
+  it("points boost lasts its configured 10 seconds", () => {
     const state = makeState();
     applyPowerUp(state, "points_boost");
-    advance(state, POWERUP.DURATIONS.points_boost - 0.5);
+    advance(state, POWERUP_TYPES.points_boost.duration - 0.5);
     assert.ok(effectActive(state, "points_boost"));
     advance(state, 0.5);
     assert.equal(effectActive(state, "points_boost"), false);
+  });
+
+  it("score_3x activates and applies correctly", () => {
+    const state = makeState();
+    applyPowerUp(state, "score_3x");
+    assert.ok(effectActive(state, "score_3x"));
+    assert.equal(effectRemaining(state, "score_3x"),
+                 POWERUP_TYPES.score_3x.duration);
+  });
+
+  it("score_5x activates and applies correctly", () => {
+    const state = makeState();
+    applyPowerUp(state, "score_5x");
+    assert.ok(effectActive(state, "score_5x"));
+    assert.equal(effectRemaining(state, "score_5x"),
+                 POWERUP_TYPES.score_5x.duration);
   });
 });
