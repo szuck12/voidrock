@@ -9,8 +9,8 @@
 //     nearest along its path), so a single shot can never score
 //     twice.
 //   * Player vs asteroid respects invulnerability and the
-//     Protective Border effect; the border destroys the
-//     colliding asteroid and awards normal hit points.
+//     Protective Border effect; the border destroys the colliding
+//     asteroid with normal score and no life loss.
 
 import { PARTICLES, PLAYER, SHAKE } from "../config.js";
 import { splitAsteroid } from "../entities/asteroid.js";
@@ -116,11 +116,11 @@ export function destroyAsteroid(state, asteroid) {
 /**
  * Resolve player vs asteroid contact for one step.
  *
- * While the Protective Border effect is active, asteroids that
- * overlap the player are destroyed and award normal hit points.
- * Otherwise a hit costs one life, grants a short invulnerability
- * window (preventing multi-life frames), recentres the ship, and
- * triggers death feedback.
+ * While the Protective Border effect is active the collision
+ * destroys the offending asteroid with normal score and no life
+ * loss.  Otherwise a hit costs one life, grants a short
+ * invulnerability window (preventing multi-life frames), recentres
+ * the ship, and triggers death feedback.
  *
  * Args:
  *     state: Game state (mutated).
@@ -135,9 +135,9 @@ export function resolvePlayerCollisions(state) {
   const scoreMult3x = effectActive(state, "score_3x");
   const scoreMult5x = effectActive(state, "score_5x");
 
-  // Iterate a snapshot: destroyAsteroid() mutates asteroid
-  // arrays, and freshly processed asteroids must not resolve
-  // again in the same frame.
+  // Iterate a snapshot: destroyAsteroid() appends split children,
+  // and freshly spawned children must never resolve against the
+  // player in the same frame they were created.
   const rocks = [...state.asteroids];
   for (const a of rocks) {
     if (!circlesOverlap(state.player.x, state.player.y,
@@ -145,23 +145,18 @@ export function resolvePlayerCollisions(state) {
       continue;
     }
     if (borderActive) {
-      // Queue a staggered shield hit: the asteroid shrinks one
-      // size level after a brief delay for visual feedback.
-      if (!state.shieldHits) {
-        state.shieldHits = [];
-      }
-      state.shieldHits.push({
-        x: a.x, y: a.y,
-        level: a.level,
-        type: a.type,
-        delay: 0.04,
-      });
-      a.alive = false;
+      addScore(state, calculateAsteroidScore(
+        a.level, a.type, boostActive, scoreMult3x, scoreMult5x));
+      destroyAsteroid(state, a);
       continue;
     }
     loseLife(state);
     return; // one life event per step maximum
   }
+
+  // Drop asteroids the border destroyed this step so callers see
+  // exactly the surviving field.
+  state.asteroids = state.asteroids.filter((a) => a.alive);
 }
 
 /**

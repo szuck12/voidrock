@@ -7,12 +7,11 @@
 // fixed delta time.  Nothing here touches the DOM, Canvas, or wall
 // clocks, so the full game is reproducible in tests.
 
-import { ASTEROID, BOARD, LIVES, PARTICLES, PLAYER, POWERUP, PROJECTILE,
-         SCORING, SHAKE }
+import { ASTEROID, BOARD, LIVES, PLAYER, POWERUP, PROJECTILE }
   from "./config.js";
 import { createPlayer, updatePlayer } from "./entities/player.js";
 import { createProjectile, updateProjectile } from "./entities/projectile.js";
-import { createAsteroid, updateAsteroid } from "./entities/asteroid.js";
+import { updateAsteroid } from "./entities/asteroid.js";
 import { calculateDifficulty } from "./systems/difficulty.js";
 import { updateSpawning } from "./systems/spawner.js";
 import {
@@ -25,7 +24,7 @@ import {
 } from "./systems/powerups.js";
 import { resolvePlayerCollisions, resolveProjectileHits }
   from "./systems/collisions.js";
-import { addScore, updateTimeScore } from "./systems/scoring.js";
+import { updateTimeScore } from "./systems/scoring.js";
 import { createRng } from "./utils/rng.js";
 
 /**
@@ -66,7 +65,6 @@ export function createInitialState(options = {}) {
     spawnTimer: calculateDifficulty(0).spawnInterval,
     powerUpTimer: powerUpTimerRoll(rng),
     shakeTimer: 0,
-    shieldHits: [],
     stars: makeStars(rng),
   };
 }
@@ -99,7 +97,6 @@ export function startNewRun(state) {
   state.spawnTimer = calculateDifficulty(0).spawnInterval;
   state.powerUpTimer = powerUpTimerRoll(state.rng);
   state.shakeTimer = 0;
-  state.shieldHits = [];
 }
 
 /**
@@ -165,9 +162,6 @@ export function stepGame(state, input, dt) {
   }
 
   cullProjectiles(state);
-
-  resolvePlayerCollisions(state);
-
   cullAsteroids(state);
 
   resolveProjectileHits(state);
@@ -177,7 +171,8 @@ export function stepGame(state, input, dt) {
 
   updateTimeScore(state, dt);
   expireEffects(state);
-  processShieldHits(state, dt);
+
+  resolvePlayerCollisions(state);
 }
 
 /**
@@ -316,104 +311,6 @@ function updateParticles(state, dt) {
     state.particles = [];
   } else {
     state.particles = state.particles.filter((pt) => pt.age < pt.lifetime);
-  }
-}
-
-/**
- * Process queued shield hits: staggered asteroid shrinkage.
- *
- * Each queued hit counts down a brief delay, then the asteroid
- * shrinks one size level.  Level 1 asteroids are fully destroyed.
- * The hit's position and type are used for particle effects and
- * scoring at each stage.
- *
- * Args:
- *     state: Game state (mutated: `shieldHits`, `asteroids`,
- *         `particles`, `shakeTimer`, `score`).
- *     dt: Elapsed seconds.
- */
-function processShieldHits(state, dt) {
-  if (!state.shieldHits || state.shieldHits.length === 0) {
-    return;
-  }
-  for (const hit of state.shieldHits) {
-    hit.delay -= dt;
-    if (hit.delay > 0) {
-      continue;
-    }
-
-    const mult = state.effects.points_boost
-      ? SCORING.POINTS_BOOST_MULT : 1;
-    const scoreMult3x = state.effects.score_3x ? SCORING.SPECIAL_MULT.gold : 1;
-    const scoreMult5x = state.effects.score_5x ? SCORING.SPECIAL_MULT.gold : 1;
-
-    if (hit.level > 1) {
-      const childLevel = hit.level - 1;
-      const heading = Math.atan2(hit.y - state.player.y,
-                                 hit.x - state.player.x) + Math.PI;
-      const spread = ASTEROID.CHILD_ANGLE_SPREAD;
-      for (let i = 0; i < ASTEROID.SPLIT_COUNT; i++) {
-        const side = i === 0 ? -1 : 1;
-        const angle = heading + side * spread * (0.5 + state.rng());
-        state.asteroids.push(createShieldChild(
-          childLevel, hit.x, hit.y, angle, hit.type, state.rng));
-      }
-    }
-
-    addScore(state,
-      SCORING.SIZE_SCORE[hit.level] *
-      SCORING.SPECIAL_MULT[hit.type] * mult * scoreMult3x * scoreMult5x);
-    spawnBurst(state, hit.x, hit.y,
-               PARTICLES.BURST_BY_LEVEL[hit.level], hit.type);
-    if (state.shakeTimer < SHAKE.HIT_DURATION) {
-      state.shakeTimer = SHAKE.HIT_DURATION;
-    }
-  }
-  state.shieldHits = state.shieldHits.filter((h) => h.delay > 0);
-}
-
-/**
- * Create a child asteroid from a shield hit.
- *
- * Args:
- *     level: Size level of the child.
- *     x: Position X.
- *     y: Position Y.
- *     angle: Travel direction.
- *     type: Asteroid type ("normal", "bronze", "gold").
- *     rng: Random source.
- *
- * Returns:
- *     New asteroid state object.
- */
-function createShieldChild(level, x, y, angle, type, rng) {
-  return createAsteroid({ level, x, y, angle, rng, type });
-}
-
-/**
- * Push a particle burst into the state's particle pool.
- *
- * Args:
- *     state: Game state (mutated: `particles`).
- *     x: Burst X position.
- *     y: Burst Y position.
- *     count: Number of particles to emit (capped by pool space).
- *     colorKey: Particle colour family ("normal" or special class).
- */
-function spawnBurst(state, x, y, count, colorKey) {
-  for (let i = 0; i < count && state.particles.length < PARTICLES.MAX;
-       i++) {
-    const angle = state.rng() * Math.PI * 2;
-    const speed = (0.35 + state.rng() * 0.65) * PARTICLES.SPEED;
-    state.particles.push({
-      x,
-      y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      age: 0,
-      lifetime: PARTICLES.LIFETIME * (0.6 + state.rng() * 0.8),
-      colorKey,
-    });
   }
 }
 

@@ -374,9 +374,8 @@ describe("power-up collection", () => {
                                      y: state.player.y,
                                      level: 3, type: "normal" });
     const before = state.score;
-    step(state, 1 / 60); // queue the shield hit
-    step(state, 0.15);   // process after delay expires
-    // The asteroid should be destroyed
+    step(state, 1 / 60);
+    // The asteroid should be destroyed immediately
     assert.equal(a.alive, false,
                  "asteroid must be destroyed by shield contact");
     // Normal hit score should be awarded (large normal = 10)
@@ -391,20 +390,18 @@ describe("power-up collection", () => {
     placeAsteroid(state, { x: state.player.x,
                            y: state.player.y });
     const before = state.score;
-    step(state, 1 / 60); // queue the shield hit
-    step(state, 0.15);   // process after delay expires
+    step(state, 1 / 60);
     assert.ok(state.score > before,
               "shield must score on asteroid destruction");
   });
 
-  it("shield shrinks large asteroids into two medium children",
+  it("shield splits large asteroids into two medium children",
      () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
     placeAsteroid(state, { x: state.player.x,
                            y: state.player.y, level: 3 });
     step(state, 1 / 60);
-    step(state, 0.15);
     // Should have 2 medium children (level 2)
     const mediums = state.asteroids.filter((a) => a.level === 2);
     assert.equal(mediums.length, 2,
@@ -418,27 +415,11 @@ describe("power-up collection", () => {
     placeAsteroid(state, { x: state.player.x,
                            y: state.player.y, level: 1 });
     step(state, 1 / 60);
-    step(state, 0.15);
     // No children should remain from a small asteroid
     const children = state.asteroids.filter((a) =>
       a.x === state.player.x && a.y === state.player.y);
     assert.equal(children.length, 0,
                  "small asteroid must not produce children");
-  });
-
-  it("shield processes hits within a short delay", () => {
-    const state = makeState();
-    applyPowerUp(state, "protective_border");
-    placeAsteroid(state, { x: state.player.x,
-                           y: state.player.y, level: 3 });
-    step(state, 1 / 60); // queue the hit
-    // Immediately after, the hit should NOT be processed yet
-    // (delay is ~0.04s). Check that score is still 0.
-    assert.equal(state.score, 0,
-                 "shield hit must not process instantly");
-    step(state, 0.08); // now past the 0.04s delay
-    assert.ok(state.score > 0,
-              "shield hit must process within ~0.08s");
   });
 
   it("protective border expires after its duration", () => {
