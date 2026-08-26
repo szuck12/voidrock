@@ -154,7 +154,7 @@ export function resolvePlayerCollisions(state) {
         x: a.x, y: a.y,
         level: a.level,
         type: a.type,
-        delay: 0.08,
+        delay: 0.04,
       });
       a.alive = false;
       continue;

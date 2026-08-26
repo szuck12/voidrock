@@ -433,12 +433,12 @@ describe("power-up collection", () => {
                            y: state.player.y, level: 3 });
     step(state, 1 / 60); // queue the hit
     // Immediately after, the hit should NOT be processed yet
-    // (delay is ~0.08s). Check that score is still 0.
+    // (delay is ~0.04s). Check that score is still 0.
     assert.equal(state.score, 0,
                  "shield hit must not process instantly");
-    step(state, 0.1); // now past the 0.08s delay
+    step(state, 0.08); // now past the 0.04s delay
     assert.ok(state.score > 0,
-              "shield hit must process within ~0.1s");
+              "shield hit must process within ~0.08s");
   });
 
   it("protective border expires after its duration", () => {
