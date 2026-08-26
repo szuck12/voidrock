@@ -222,3 +222,45 @@ describe("survival integration", () => {
     assert.equal(state.projectiles.length, 0);
   });
 });
+
+describe("restart exact state", () => {
+  it("restart sets elapsed to zero", () => {
+    const state = makeState();
+    advance(state, 20);
+    startNewRun(state);
+    assert.equal(state.elapsed, 0);
+  });
+
+  it("restart sets spawnTimer to initial value", () => {
+    const state = makeState();
+    advance(state, 20);
+    const depleted = state.spawnTimer;
+    startNewRun(state);
+    assert.ok(state.spawnTimer > depleted,
+              `spawnTimer ${state.spawnTimer} should be > ` +
+              `depleted value ${depleted}`);
+  });
+
+  it("restart clears projectiles array", () => {
+    const state = makeState();
+    state.projectiles.push({ x: 100, y: 100, vx: 10, vy: 0 });
+    state.projectiles.push({ x: 200, y: 200, vx: 0, vy: 10 });
+    startNewRun(state);
+    assert.equal(state.projectiles.length, 0);
+  });
+
+  it("restart clears events array", () => {
+    const state = makeState();
+    state.events.push({ kind: "death", x: 100, y: 100 });
+    startNewRun(state);
+    assert.equal(state.events.length, 0);
+  });
+
+  it("restart clears particles array", () => {
+    const state = makeState();
+    state.particles.push({ x: 50, y: 50, vx: 10, vy: 10,
+                           age: 0, lifetime: 1, colorKey: "normal" });
+    startNewRun(state);
+    assert.equal(state.particles.length, 0);
+  });
+});

@@ -9,6 +9,41 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-25
+
+### Added
+
+- Comprehensive test suite expansion: 223 tests across 17 suites
+  (up from 159 tests across 14 suites).
+- `test_collisions.js`: Direct unit tests for `projectileHitsAsteroid`,
+  `destroyAsteroid`, `spawnBurst`, particle spawning, shield+multiplier
+  combos, event emission, and phase guards.
+- `test_powerup_edges.js`: Edge cases for `powerUpPosition`,
+  `powerUpTimerRoll`, `createPowerUp`, `collectPowerUps` event
+  emission, and `effectRemaining`.
+- `test_game_edges.js`: Toggle pause phase guards, `createInitialState`
+  determinism, `startNewRun` state reset, particle lifecycle, and
+  shakeTimer countdown.
+- `test_player_edges.js`: `decayVelocity` zero threshold,
+  `updatePlayer` speedMult clamping, and `clampToBoard` idempotency.
+- Augmented `test_scoring.js` with exact value assertions for all
+  multiplier combinations (boost, 3x, 5x, bronze, gold).
+- Augmented `test_game_flow.js` with restart state checks (elapsed,
+  spawnTimer, projectiles, events, particles).
+- Augmented `test_powerups.js` with rapid fire, multi shot, unknown
+  type, and effectRemaining edge case tests.
+
+### Changed
+
+- Protective Border now destroys asteroids on contact and awards
+  points (replaces redirect-only behavior).
+- Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
+  controls reference.
+- Favicon simplified to inline SVG cyan triangle (transparent
+  background).
+- Canvas CSS scales vertically to fit both width and height;
+  removed expanding box on small viewports.
+
 ## [1.2.0] - 2026-08-24
 
 ### Added

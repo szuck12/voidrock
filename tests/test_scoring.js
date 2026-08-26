@@ -181,4 +181,48 @@ describe("score persistence", () => {
      () => {
     assert.ok(PROJECTILE.MAX_ACTIVE >= 1);
   });
+
+  it("survival score is purely additive (no bonus on death)", () => {
+    const state = makeState();
+    advance(state, 4);
+    const scoreBefore = state.score;
+    state.lives = 1;
+    loseLife(state);
+    assert.equal(state.score, scoreBefore,
+                 "losing a life must not add or subtract score");
+  });
+});
+
+describe("calculateAsteroidScore exact values", () => {
+  it("normal type with no boosts returns base score", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", false, false, false), 10);
+    assert.equal(calculateAsteroidScore(2, "normal", false, false, false), 15);
+    assert.equal(calculateAsteroidScore(1, "normal", false, false, false), 20);
+  });
+
+  it("boost doubles the score for all size levels", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", true, false, false), 20);
+    assert.equal(calculateAsteroidScore(2, "normal", true, false, false), 30);
+    assert.equal(calculateAsteroidScore(1, "normal", true, false, false), 40);
+  });
+
+  it("3x multiplier triples base score without boost", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", false, true, false), 30);
+    assert.equal(calculateAsteroidScore(2, "normal", false, true, false), 45);
+    assert.equal(calculateAsteroidScore(1, "normal", false, true, false), 60);
+  });
+
+  it("5x multiplier quintuples base score without boost", () => {
+    assert.equal(calculateAsteroidScore(3, "normal", false, false, true), 50);
+    assert.equal(calculateAsteroidScore(2, "normal", false, false, true), 75);
+    assert.equal(calculateAsteroidScore(1, "normal", false, false, true), 100);
+  });
+
+  it("bronze with all multipliers: 15 * 2 * 2 * 3 * 5 = 900", () => {
+    assert.equal(calculateAsteroidScore(2, "bronze", true, true, true), 900);
+  });
+
+  it("gold with all multipliers: 20 * 4 * 2 * 3 * 5 = 2400", () => {
+    assert.equal(calculateAsteroidScore(1, "gold", true, true, true), 2400);
+  });
 });

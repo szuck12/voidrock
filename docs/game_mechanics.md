@@ -58,16 +58,18 @@ Scoring per hit:
 
 ## Difficulty Curve
 
-Five keyframes at 0/60/120/180/300 s, linearly interpolated and
-held after the last:
+Seven keyframes at 0/30/60/100/150/220/300 s, linearly interpolated
+and held after the last:
 
 | t (s) | spawn interval | speed mult | special chance |
 | --- | --- | --- | --- |
-| 0 | 2.4 s | 1.00 | .03 |
-| 60 | 1.9 s | 1.15 | .06 |
-| 120 | 1.5 s | 1.30 | .10 |
-| 180 | 1.15 s | 1.45 | .14 |
-| 300 | 0.8 s | 1.60 | .20 |
+| 0 | 1.6 s | 1.00 | .03 |
+| 30 | 1.5 s | 1.10 | .05 |
+| 60 | 1.3 s | 1.22 | .08 |
+| 100 | 1.08 s | 1.36 | .11 |
+| 150 | 0.88 s | 1.52 | .14 |
+| 220 | 0.71 s | 1.72 | .17 |
+| 300 | 0.58 s | 1.95 | .20 |
 
 Monotonicity is enforced by tests (`tests/test_difficulty.js`).
 
@@ -99,19 +101,19 @@ Monotonicity is enforced by tests (`tests/test_difficulty.js`).
 
 | Type | Duration | Weight | Unlocks at | Notes |
 | --- | --- | --- | --- | --- |
-| Speed Boost | 15 s | 12 | 0 s | 1.5x accel/cap |
-| Points Boost | 10 s | 14 | 0 s | all scoring x2 |
-| Slow Asteroids | 10 s | 10 | 0 s | displacement x0.45, velocities preserved |
-| Protective Border | 20 s | 6 | 0 s | border redirects asteroids; no points awarded |
-| Rapid Fire | 10 s | 12 | 0 s | cooldown x0.45 |
+| Speed Boost | 15 s | 20 | 0 s | 1.5x accel/cap |
+| Points Boost | 10 s | 18 | 0 s | all scoring x2 |
+| Slow Asteroids | 10 s | 16 | 0 s | displacement x0.45, velocities preserved |
+| Protective Border | 10 s | 16 | 0 s | destroys asteroids on contact; awards points |
+| Rapid Fire | 10 s | 14 | 0 s | cooldown x0.45 |
 | Multi-Shot | 10 s | 10 | 0 s | three-bolt spread |
-| Extra Life | instant | 14 | 0 s | capped at 3; only drops when below max |
+| Extra Life | instant | 8 | 0 s | capped at 3; only drops when below max |
 | 3x Score | 8 s | 4 | 60 s | all scoring x3 |
 | 5x Score | 6 s | 2 | 120 s | all scoring x5 |
 
 * Player collisions resolve against a snapshot of the asteroid
   list: split children created during the step wait for the next
-  frame, preventing same-frame cascade kills under the border.
+  frame, preventing same-frame cascade kills under the shield.
 
 ## Scoring
 
@@ -125,7 +127,7 @@ Scoring is size-based, not flat:
 
 * +1 per whole second survived, fractional credit carries across
   arbitrary step sizes (frame-rate independent totals).
-* Multipliers (gold x2, Points Boost x2, 3x, 5x) apply
+* Multipliers (gold x4, Points Boost x2, 3x, 5x) apply
   multiplicatively on top of the size-based score.
 * Hits route through `addScore`, which also raises `bestScore`;
   best persists to localStorage between sessions.

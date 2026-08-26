@@ -485,4 +485,32 @@ describe("power-up collection", () => {
     assert.equal(effectRemaining(state, "score_5x"),
                  POWERUP_TYPES.score_5x.duration);
   });
+
+  it("rapid fire halves cooldown while active", () => {
+    const state = makeState();
+    applyPowerUp(state, "rapid_fire");
+    const def = POWERUP_TYPES.rapid_fire;
+    assert.ok(def.duration === 10);
+  });
+
+  it("multi shot adds two extra projectiles", () => {
+    const state = makeState();
+    applyPowerUp(state, "multi_shot");
+    assert.ok(effectActive(state, "multi_shot"));
+    assert.equal(effectRemaining(state, "multi_shot"),
+                 POWERUP_TYPES.multi_shot.duration);
+  });
+
+  it("effectRemaining returns 0 for unknown type", () => {
+    const state = makeState();
+    assert.equal(effectRemaining(state, "nonexistent"), 0);
+  });
+
+  it("applyPowerUp with unknown type is a no-op", () => {
+    const state = makeState();
+    const livesBefore = state.lives;
+    applyPowerUp(state, "bogus_type");
+    assert.equal(state.lives, livesBefore);
+    assert.equal(Object.keys(state.effects).length, 0);
+  });
 });

@@ -40,9 +40,25 @@ voidrock/
 │   ├── systems/                  # Scoring, difficulty, spawner,
 │   │                             # power-ups, collisions
 │   └── utils/                    # Seeded RNG + math helpers
-├── tests/                        # node:test suite (134 tests)
+├── tests/                        # node:test suite (223 tests)
 │   ├── helpers.js                # Deterministic fixtures
-│   └── test_*.js                 # Per-module suites
+│   ├── test_asteroid_spawning.js
+│   ├── test_asteroid_splitting.js
+│   ├── test_asteroids.js         # Movement, culling, speeds
+│   ├── test_collisions.js        # Direct collision primitives
+│   ├── test_config.js            # Config sanity
+│   ├── test_difficulty.js        # Curve + integration
+│   ├── test_game_edges.js        # Game state edge cases
+│   ├── test_game_flow.js         # Phases, lives, restart, pause
+│   ├── test_math.js              # Math helpers
+│   ├── test_player.js            # Player physics + clamping
+│   ├── test_player_edges.js      # Player edge cases
+│   ├── test_powerup_edges.js     # Power-up edge cases
+│   ├── test_powerups.js          # Power-up scheduling + effects
+│   ├── test_projectiles.js       # Projectile lifecycle
+│   ├── test_rng.js               # Seeded RNG
+│   ├── test_scoring.js           # Scoring exact values
+│   └── test_specials.js          # Special asteroids
 ├── index.html                    # Game shell: HUD + overlays
 ├── styles.css                    # Terminal-flavoured styling
 ├── run_tests.js                  # Convenience test runner
@@ -59,7 +75,7 @@ voidrock/
 | Key | Action |
 | --- | --- |
 | `W A S D` / arrow keys | Thrust (ship turns toward movement) |
-| `SPACE` | Ship fires |
+| `SPACE` | Shoot |
 | `P` / `Esc` | Pause |
 | `ENTER` | Start / restart |
 
@@ -91,7 +107,7 @@ Nine power-ups drop and are collected by touch:
 | Points Boost | All scoring doubled | 10 s |
 | Extra Life | +1 life, capped at 3; only drops when eligible | instant |
 | Slow Asteroids | Asteroid motion scaled to 45% | 10 s |
-| Protective Border | Border redirects asteroids away from the ship | 20 s |
+| Protective Border | Destroys asteroids on contact and awards points | 10 s |
 | Rapid Fire | Cooldown cut to 45% | 10 s |
 | Multi-Shot | Three-bolt spread | 10 s |
 | 3x Score | All scoring tripled | 8 s |
