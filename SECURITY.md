@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-Voidrock is a fully client-side static site: it collects no data,
+VoidRock is a fully client-side static site: it collects no data,
 makes no network requests, and stores only a best score in
 `localStorage`. The attack surface is correspondingly small, but
 issues are still taken seriously.

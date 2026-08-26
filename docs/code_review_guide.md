@@ -1,7 +1,7 @@
 # Code Review Guide
 
 Expectations for reviewing (and self-reviewing) changes to
-Voidrock.
+VoidRock.
 
 ## Before Requesting Review
 

@@ -1,6 +1,6 @@
 # TODO
 
-A living list of tasks and ideas for Voidrock. See
+A living list of tasks and ideas for VoidRock. See
 `docs/maintain_todo.md` for the conventions this file follows.
 
 ## In Progress

@@ -1,6 +1,6 @@
 # Game Mechanics Reference
 
-The tuning numbers and design rules behind Voidrock. Every value
+The tuning numbers and design rules behind VoidRock. Every value
 here lives in `src/config.js` — this document explains *why*, the
 code defines *what*.
 
