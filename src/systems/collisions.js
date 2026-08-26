@@ -9,11 +9,10 @@
 //     nearest along its path), so a single shot can never score
 //     twice.
 //   * Player vs asteroid respects invulnerability and the
-//     Protective Border effect; the border redirects the
-//     colliding asteroid away from the ship without awarding
-//     points or destroying it.
+//     Protective Border effect; the border destroys the
+//     colliding asteroid and awards normal hit points.
 
-import { BOARD, PARTICLES, PLAYER, POWERUP, SHAKE } from "../config.js";
+import { PARTICLES, PLAYER, SHAKE } from "../config.js";
 import { splitAsteroid } from "../entities/asteroid.js";
 import { circlesOverlap, pointSegmentDistance } from "../utils/math.js";
 import { addScore, calculateAsteroidScore } from "./scoring.js";
@@ -115,52 +114,12 @@ export function destroyAsteroid(state, asteroid) {
 }
 
 /**
- * Redirect an asteroid that contacted the protective border.
- *
- * The asteroid is pushed away from the border edge and its
- * velocity is reflected so it bounces back into play.  No points
- * are awarded and the asteroid is not destroyed.
- *
- * Args:
- *     asteroid: The asteroid to redirect (mutated: x, y, vx, vy).
- */
-function redirectAsteroid(asteroid) {
-  const inset = POWERUP.PROTECTIVE_BORDER_INSET;
-  const boardW = BOARD.WIDTH;
-  const boardH = BOARD.HEIGHT;
-
-  // Determine which edge the asteroid is closest to and reflect
-  // its velocity component, then push it back inside.
-  const distLeft = asteroid.x;
-  const distRight = boardW - asteroid.x;
-  const distTop = asteroid.y;
-  const distBottom = boardH - asteroid.y;
-
-  const minDist = Math.min(distLeft, distRight, distTop, distBottom);
-
-  if (minDist === distLeft) {
-    asteroid.vx = Math.abs(asteroid.vx) * 1.05;
-    asteroid.x = inset;
-  } else if (minDist === distRight) {
-    asteroid.vx = -Math.abs(asteroid.vx) * 1.05;
-    asteroid.x = boardW - inset;
-  } else if (minDist === distTop) {
-    asteroid.vy = Math.abs(asteroid.vy) * 1.05;
-    asteroid.y = inset;
-  } else {
-    asteroid.vy = -Math.abs(asteroid.vy) * 1.05;
-    asteroid.y = boardH - inset;
-  }
-}
-
-/**
  * Resolve player vs asteroid contact for one step.
  *
  * While the Protective Border effect is active, asteroids that
- * overlap the player's protected zone are redirected away without
- * destroying them and without awarding points.  Otherwise a hit
- * costs one life, grants a short invulnerability window
- * (preventing multi-life frames), recentres the ship, and
+ * overlap the player are destroyed and award normal hit points.
+ * Otherwise a hit costs one life, grants a short invulnerability
+ * window (preventing multi-life frames), recentres the ship, and
  * triggers death feedback.
  *
  * Args:
@@ -172,10 +131,13 @@ export function resolvePlayerCollisions(state) {
   }
 
   const borderActive = effectActive(state, "protective_border");
+  const boostActive = effectActive(state, "points_boost");
+  const scoreMult3x = effectActive(state, "score_3x");
+  const scoreMult5x = effectActive(state, "score_5x");
 
-  // Iterate a snapshot: redirectAsteroid() or destroyAsteroid()
-  // mutates asteroid positions/velocities, and freshly processed
-  // asteroids must not resolve again in the same frame.
+  // Iterate a snapshot: destroyAsteroid() mutates asteroid
+  // arrays, and freshly processed asteroids must not resolve
+  // again in the same frame.
   const rocks = [...state.asteroids];
   for (const a of rocks) {
     if (!circlesOverlap(state.player.x, state.player.y,
@@ -183,9 +145,18 @@ export function resolvePlayerCollisions(state) {
       continue;
     }
     if (borderActive) {
-      // Protective border: redirect the asteroid, no score, no
-      // destruction.
-      redirectAsteroid(a);
+      // Queue a staggered shield hit: the asteroid shrinks one
+      // size level after a brief delay for visual feedback.
+      if (!state.shieldHits) {
+        state.shieldHits = [];
+      }
+      state.shieldHits.push({
+        x: a.x, y: a.y,
+        level: a.level,
+        type: a.type,
+        delay: 0.08,
+      });
+      a.alive = false;
       continue;
     }
     loseLife(state);

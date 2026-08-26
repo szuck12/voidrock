@@ -100,6 +100,10 @@ body {
   width: 100%;
   border: 1px solid rgba(140, 160, 175, 0.25);
   background: var(--bg);
+  min-height: 0;
+  flex: 1 1 auto;
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
 }
 
 canvas {
@@ -136,6 +140,8 @@ canvas {
 
 .title.small {
   font-size: 34px;
+  letter-spacing: 0.12em;
+  margin-right: -0.12em;
 }
 
 .subtitle {
@@ -231,5 +237,54 @@ canvas {
 
   .footnote span:last-child {
     display: none;
+  }
+}
+
+@media (max-height: 520px) {
+  .frame {
+    gap: 4px;
+    padding: 6px 10px;
+  }
+
+  .hud {
+    min-height: 28px;
+    gap: 10px;
+  }
+
+  .hud-label {
+    font-size: 9px;
+  }
+
+  .hud-value {
+    font-size: 15px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .title.small {
+    font-size: 22px;
+  }
+
+  .controls-list {
+    gap: 3px;
+    font-size: 11px;
+  }
+
+  .hint {
+    font-size: 9px;
+  }
+
+  .prompt {
+    font-size: 12px;
+  }
+
+  .footnote {
+    font-size: 8px;
+  }
+
+  .stage {
+    max-height: calc(100vh - 70px);
   }
 }

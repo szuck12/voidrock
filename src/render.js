@@ -7,7 +7,7 @@
 // monochrome line art on black, with restrained metallic accents
 // reserved for special asteroids and power-ups.
 
-import { BOARD } from "./config.js";
+import { BOARD, POWERUP } from "./config.js";
 
 /** Stroke colours per asteroid class. */
 const ASTEROID_COLORS = Object.freeze({
@@ -45,7 +45,7 @@ export function render(ctx, state, timeMs) {
   }
 
   drawStars(ctx, state.stars, t);
-  drawPowerUps(ctx, state.powerups, t);
+  drawPowerUps(ctx, state.powerups, t, state.elapsed);
   drawAsteroids(ctx, state.asteroids);
   drawProjectiles(ctx, state.projectiles);
   drawParticles(ctx, state.particles);
@@ -225,17 +225,31 @@ function drawShield(ctx, state, t) {
 /**
  * Draw power-ups: gold ring, dark core, vector glyph.
  *
+ * Gold capsules flicker during their last 5 seconds on the field
+ * so the player has visual warning before expiry.
+ *
  * Args:
  *     ctx: Canvas context.
  *     powerups: Power-up states.
  *     t: Seconds for pulse animation.
+ *     elapsed: Current game elapsed time.
  */
-function drawPowerUps(ctx, powerups, t) {
+function drawPowerUps(ctx, powerups, t, elapsed) {
   ctx.save();
   for (const p of powerups) {
+    const age = elapsed - p.bornAt;
+    const remaining = POWERUP.LIFETIME - age;
+
+    // Flicker during the last 5 seconds before expiry.
+    let baseAlpha = 1;
+    if (remaining <= 5 && remaining > 0) {
+      baseAlpha = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(age * 18));
+    }
+
     const pulse = 1 + Math.sin(t * 4 + p.x * 0.05) * 0.08;
     const r = p.radius * pulse;
 
+    ctx.globalAlpha = baseAlpha;
     ctx.strokeStyle = "#ffd700";
     ctx.lineWidth = 2.5;
     ctx.fillStyle = "#000";
@@ -245,11 +259,11 @@ function drawPowerUps(ctx, powerups, t) {
     ctx.fill();
     ctx.stroke();
 
+    ctx.globalAlpha = baseAlpha * 0.35;
     ctx.beginPath();
     ctx.arc(p.x, p.y, r * 0.55, 0, Math.PI * 2);
-    ctx.globalAlpha = 0.35;
     ctx.stroke();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = baseAlpha;
 
     drawPowerUpGlyph(ctx, p.type, p.x, p.y);
   }

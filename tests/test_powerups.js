@@ -241,11 +241,11 @@ describe("power-up application", () => {
     }
   });
 
-  it("border lasts 20 seconds", () => {
+  it("shield lasts 10 seconds", () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
-    assert.equal(POWERUP_TYPES.protective_border.duration, 20);
-    advance(state, 19);
+    assert.equal(POWERUP_TYPES.protective_border.duration, 10);
+    advance(state, 9);
     assert.ok(effectActive(state, "protective_border"));
     advance(state, 1.5);
     assert.equal(effectActive(state, "protective_border"), false);
@@ -366,31 +366,79 @@ describe("power-up collection", () => {
                  "no life lost under the border");
   });
 
-  it("protective border redirects asteroids without destroying them",
+  it("shield destroys asteroids on contact and awards points",
      () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
     const a = placeAsteroid(state, { x: state.player.x,
                                      y: state.player.y,
-                                     vx: -50, vy: 30 });
-    step(state, 1 / 60);
-    // The asteroid should still exist (not destroyed)
-    assert.ok(state.asteroids.includes(a),
-              "asteroid must survive border contact");
-    // No score should be awarded
-    assert.equal(state.score, 0,
-                 "border redirect awards no points");
+                                     level: 3, type: "normal" });
+    const before = state.score;
+    step(state, 1 / 60); // queue the shield hit
+    step(state, 0.15);   // process after delay expires
+    // The asteroid should be destroyed
+    assert.equal(a.alive, false,
+                 "asteroid must be destroyed by shield contact");
+    // Normal hit score should be awarded (large normal = 10)
+    assert.ok(state.score > before,
+              "shield must award hit points on destruction");
   });
 
-  it("protective border gives no points on redirect", () => {
+  it("shield awards normal hit score on asteroid destruction",
+     () => {
     const state = makeState();
     applyPowerUp(state, "protective_border");
     placeAsteroid(state, { x: state.player.x,
                            y: state.player.y });
     const before = state.score;
+    step(state, 1 / 60); // queue the shield hit
+    step(state, 0.15);   // process after delay expires
+    assert.ok(state.score > before,
+              "shield must score on asteroid destruction");
+  });
+
+  it("shield shrinks large asteroids into two medium children",
+     () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    placeAsteroid(state, { x: state.player.x,
+                           y: state.player.y, level: 3 });
     step(state, 1 / 60);
-    assert.equal(state.score, before,
-                 "border redirect must not score");
+    step(state, 0.15);
+    // Should have 2 medium children (level 2)
+    const mediums = state.asteroids.filter((a) => a.level === 2);
+    assert.equal(mediums.length, 2,
+                 "large asteroid must split into two mediums");
+  });
+
+  it("shield destroys small asteroids outright with no children",
+     () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    placeAsteroid(state, { x: state.player.x,
+                           y: state.player.y, level: 1 });
+    step(state, 1 / 60);
+    step(state, 0.15);
+    // No children should remain from a small asteroid
+    const children = state.asteroids.filter((a) =>
+      a.x === state.player.x && a.y === state.player.y);
+    assert.equal(children.length, 0,
+                 "small asteroid must not produce children");
+  });
+
+  it("shield processes hits within a short delay", () => {
+    const state = makeState();
+    applyPowerUp(state, "protective_border");
+    placeAsteroid(state, { x: state.player.x,
+                           y: state.player.y, level: 3 });
+    step(state, 1 / 60); // queue the hit
+    // Immediately after, the hit should NOT be processed yet
+    // (delay is ~0.08s). Check that score is still 0.
+    assert.equal(state.score, 0,
+                 "shield hit must not process instantly");
+    step(state, 0.1); // now past the 0.08s delay
+    assert.ok(state.score > 0,
+              "shield hit must process within ~0.1s");
   });
 
   it("protective border expires after its duration", () => {

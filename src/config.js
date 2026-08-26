@@ -103,13 +103,13 @@ export const SPECIAL = Object.freeze({
  */
 export const DIFFICULTY = Object.freeze({
   KEYFRAMES: Object.freeze([
-    Object.freeze({ t: 0, spawnInterval: 2.4, speedMult: 1.0, specialChance: 0.03 }),
-    Object.freeze({ t: 30, spawnInterval: 2.05, speedMult: 1.1, specialChance: 0.05 }),
-    Object.freeze({ t: 60, spawnInterval: 1.75, speedMult: 1.22, specialChance: 0.08 }),
-    Object.freeze({ t: 100, spawnInterval: 1.45, speedMult: 1.36, specialChance: 0.11 }),
-    Object.freeze({ t: 150, spawnInterval: 1.18, speedMult: 1.52, specialChance: 0.14 }),
-    Object.freeze({ t: 220, spawnInterval: 0.95, speedMult: 1.72, specialChance: 0.17 }),
-    Object.freeze({ t: 300, spawnInterval: 0.78, speedMult: 1.95, specialChance: 0.2 }),
+    Object.freeze({ t: 0, spawnInterval: 1.6, speedMult: 1.0, specialChance: 0.03 }),
+    Object.freeze({ t: 30, spawnInterval: 1.5, speedMult: 1.1, specialChance: 0.05 }),
+    Object.freeze({ t: 60, spawnInterval: 1.3, speedMult: 1.22, specialChance: 0.08 }),
+    Object.freeze({ t: 100, spawnInterval: 1.08, speedMult: 1.36, specialChance: 0.11 }),
+    Object.freeze({ t: 150, spawnInterval: 0.88, speedMult: 1.52, specialChance: 0.14 }),
+    Object.freeze({ t: 220, spawnInterval: 0.71, speedMult: 1.72, specialChance: 0.17 }),
+    Object.freeze({ t: 300, spawnInterval: 0.58, speedMult: 1.95, specialChance: 0.2 }),
   ]),
 });
 
@@ -136,8 +136,8 @@ export const POWERUP_TYPES = Object.freeze({
     weight: 16,
   }),
   protective_border: Object.freeze({
-    label: "BORDER",
-    duration: 20,
+    label: "SHIELD",
+    duration: 10,
     weight: 16,
   }),
   rapid_fire: Object.freeze({
@@ -181,7 +181,6 @@ export const POWERUP = Object.freeze({
   // Effect magnitudes.
   SPEED_BOOST_MULT: 1.5, // thrust/top-speed multiplier while boosting
   SLOW_ASTEROID_FACTOR: 0.45, // asteroid displacement factor while slow
-  PROTECTIVE_BORDER_INSET: 30, // px inside the board edge for the barrier
 
   // Derived from POWERUP_TYPES for backward-compatible access.
   DURATIONS: Object.freeze(
