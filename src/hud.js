@@ -6,9 +6,9 @@
 // class toggling are used — no innerHTML — so no user-controlled
 // string can ever reach the parser.
 
-import { LIVES } from "../config.js";
+import { LIVES } from "./config.js";
 import { effectRemaining } from "./systems/powerups.js";
-import { POWERUP_TYPES } from "../config.js";
+import { POWERUP_TYPES } from "./config.js";
 
 /** Timed effects shown as countdown chips, in display order. */
 const CHIP_KEYS = [
