@@ -98,10 +98,6 @@ body {
 .stage {
   position: relative;
   width: 100%;
-  border-top: 1px solid rgba(140, 160, 175, 0.25);
-  border-bottom: 1px solid rgba(140, 160, 175, 0.25);
-  border-left: none;
-  border-right: none;
   background: var(--bg);
 }
 
