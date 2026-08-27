@@ -84,13 +84,13 @@ export const SCORING = Object.freeze({
  */
 export const SPECIAL = Object.freeze({
   UNLOCK_TIMES: Object.freeze({
-    bronze: 25,
-    gold: 115,
+    bronze: 60,
+    gold: 120,
   }),
   // Relative weights used once a special asteroid is rolled.
   TYPE_WEIGHTS: Object.freeze({
-    bronze: 0.58,
-    gold: 0.42,
+    bronze: 0.70,
+    gold: 0.30,
   }),
 });
 

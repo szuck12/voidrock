@@ -44,8 +44,8 @@ code defines *what*.
 
 ## Specials
 
-Unlocks at 25 s / 115 s (bronze / gold). Silver has been removed.
-Among specials, weights are bronze .58 / gold .42. Per-hit
+Unlocks at 60 s / 120 s (bronze / gold). Silver has been removed.
+Among specials, weights are bronze .70 / gold .30. Per-hit
 multipliers x2 / x4 apply on top of the size-based base score.
 
 Scoring per hit:

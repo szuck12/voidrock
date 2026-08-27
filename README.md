@@ -1,6 +1,6 @@
 # VoidRock
 
-![version](https://img.shields.io/badge/version-1.3.0-blue)
+![version](https://img.shields.io/badge/version-1.3.1-blue)
 
 A minimalist arcade survival game built with vanilla JavaScript and
 HTML5 Canvas. Pilot a wedge-fighter inside a walled arena, split
@@ -53,13 +53,6 @@ size-based scores on each hit:
 | Large | 10 |
 | Medium | 15 |
 | Small | 20 |
-
-Rare **special** asteroids multiply each hit:
-
-| Class | Rarity | Multiplier | Unlocks at |
-| --- | --- | --- | --- |
-| Bronze ring | 58% of specials | x2 | 25 s |
-| Gold ring | 42% of specials | x4 | 115 s |
 
 Nine power-ups drop as gold capsules and are collected by touch:
 
@@ -128,8 +121,8 @@ Special classes unlock over time and carry per-hit score multipliers:
 
 | Class | Unlock | Multiplier | Rarity among specials |
 | --- | --- | --- | --- |
-| Bronze | 25 s | x2 | 58% |
-| Gold | 115 s | x4 | 42% |
+| Bronze | 60 s | x2 | 70% |
+| Gold | 120 s | x4 | 30% |
 
 Special status is rolled when an asteroid spawns. The probability
 starts at 3% and rises to 20% by 5 minutes via the difficulty

@@ -81,10 +81,10 @@ describe("special asteroid unlocking", () => {
   });
 
   it("canSpawnSpecial() gates each class independently", () => {
-    assert.equal(canSpawnSpecial("bronze", 24.9), false);
-    assert.equal(canSpawnSpecial("bronze", 25), true);
-    assert.equal(canSpawnSpecial("gold", 25), false);
-    assert.equal(canSpawnSpecial("gold", 115), true);
+    assert.equal(canSpawnSpecial("bronze", 59.9), false);
+    assert.equal(canSpawnSpecial("bronze", 60), true);
+    assert.equal(canSpawnSpecial("gold", 60), false);
+    assert.equal(canSpawnSpecial("gold", 120), true);
   });
 });
 

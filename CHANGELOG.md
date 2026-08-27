@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com) and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-08-26
+
+### Changed
+- Bronze asteroids now unlock at 60 s (was 25 s) and represent 70%
+  of specials (was 58%).
+- Gold asteroids now unlock at 120 s (was 115 s) and represent 30%
+  of specials (was 42%).
+- Consolidated duplicate special asteroid description in README.
+
 ## [1.3.0] - 2026-08-25
 
 ### Added
