@@ -48,6 +48,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.2.1] - 2026-08-25
 
+### Changed
+- Expanded `docs/commenting_guidelines.md` with block/section
+  comments, TODO/FIXEMarkers, vertical spacing, and line length
+  rules.
+- Expanded `docs/maintain_todo.md` with lifecycle table, tag
+  reference, relationship to other docs, and hygiene rules.
+- Expanded `docs/update_changelog.md` with version bump table,
+  what-to-include/exclude checklists, and commit format guidance.
+
+## [1.2.0] - 2026-08-24
+
 ### Added
 - `docs/development_workflow.md` — prerequisites, day-to-day
   commands, project structure, making changes, commit conventions,
@@ -64,17 +75,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   controls reference.
 - Canvas CSS scales vertically to fit both width and height;
   removed expanding box on small viewports.
-- Expanded `docs/commenting_guidelines.md` with block/section
-  comments, TODO/FIXEMarkers, vertical spacing, and line length
-  rules.
-- Expanded `docs/maintain_todo.md` with lifecycle table, tag
-  reference, relationship to other docs, and hygiene rules.
-- Expanded `docs/update_changelog.md` with version bump table,
-  what-to-include/exclude checklists, and commit format guidance.
-
-## [1.2.0] - 2026-08-24
-
-### Changed
 - Favicon simplified to inline SVG cyan triangle (transparent
   background).
 - HUD label changed from "EFFECTS" to "POWER-UPS".
