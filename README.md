@@ -299,10 +299,14 @@ voidrock/
 │       └── deploy-pages.yml      # GitHub Pages deployment
 ├── docs/                         # Development guides
 │   ├── adding_powerup.md         # Recipe: new power-up types
+│   ├── architecture.md           # Systems, data flow, invariants
 │   ├── code_review_guide.md      # Review expectations
 │   ├── commenting_guidelines.md  # Comment style rules
+│   ├── development_workflow.md   # Setup, run, contribute
+│   ├── extension_patterns.md     # Entity/system creation templates
 │   ├── game_mechanics.md         # Tuning values + design notes
 │   ├── maintain_todo.md          # TODO.md conventions
+│   ├── testing_guide.md          # Test patterns and conventions
 │   └── update_changelog.md       # CHANGELOG.md conventions
 ├── src/                          # Game source (ES modules)
 │   ├── config.js                 # Every tunable constant
@@ -398,11 +402,20 @@ server as-is.
 
 ## Further Reading
 
-* `docs/commenting_guidelines.md` — how source comments are written
-* `docs/code_review_guide.md` — what reviewers check first
-* `docs/maintain_todo.md` / `docs/update_changelog.md` — how
-  TODO.md and CHANGELOG.md are maintained
+* `docs/architecture.md` — core systems, module map, data flow,
+  state model, collision system, and invariants
+* `docs/testing_guide.md` — test patterns, deterministic testing,
+  how to write and run tests
+* `docs/development_workflow.md` — setup, project structure,
+  commit conventions, PR process
+* `docs/extension_patterns.md` — templates for new entities,
+  systems, config groups, and rendering elements
 * `docs/adding_powerup.md` — step-by-step recipe for new power-ups
+* `docs/code_review_guide.md` — what reviewers check first
+* `docs/commenting_guidelines.md` — how source comments are written
+* `docs/game_mechanics.md` — tuning values and design rationale
+* `docs/maintain_todo.md` — how TODO.md is maintained
+* `docs/update_changelog.md` — how CHANGELOG.md is maintained
 
 ## License
 

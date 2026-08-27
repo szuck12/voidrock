@@ -9,11 +9,42 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- `docs/architecture.md` — core systems, module map, data flow,
+  state model, collision system, spawning, entity lifecycle,
+  rendering pipeline, configuration, deterministic design, and
+  invariants.
+- `docs/testing_guide.md` — test runner usage, file structure,
+  deterministic helpers, patterns by module, adding new tests,
+  common pitfalls, and coverage summary.
+- `docs/development_workflow.md` — prerequisites, day-to-day
+  commands, project structure, making changes, commit conventions,
+  code style, testing conventions, PR process, deployment, and
+  common tasks.
+- `docs/extension_patterns.md` — templates for new entities,
+  systems, config groups, rendering elements, HUD chips, and test
+  patterns.
+
 ### Changed
 
-- Expanded README.md with comprehensive game mechanics, technical
-  overview, scoring, difficulty curve, testing, deployment, and
-  project structure documentation.
+- Expanded `docs/adding_powerup.md` from 5 short steps to a
+  comprehensive recipe with config templates, effect hook patterns,
+  rendering guidance, HUD integration, test examples, and
+  documentation checklist.
+- Expanded `docs/code_review_guide.md` from a bullet checklist to
+  a detailed guide with architecture overview, invariant
+  explanations, and common issues.
+- Expanded `docs/commenting_guidelines.md` with block/section
+  comments, TODO/FIXEMarkers, vertical spacing, and line length
+  rules.
+- Expanded `docs/maintain_todo.md` with lifecycle table, tag
+  reference, relationship to other docs, and hygiene rules.
+- Expanded `docs/update_changelog.md` with version bump table,
+  what-to-include/exclude checklists, section definitions, and
+  compare links guidance.
+- Updated README.md documentation section to list all 10 docs
+  files and expanded Further Reading links.
 
 ## [1.3.0] - 2026-08-25
 

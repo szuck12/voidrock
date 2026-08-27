@@ -17,7 +17,7 @@ A living list of tasks and ideas for VoidRock. See
       (#gameplay) — 2026-08-22
 - [x] HUD with effect countdown chips; overlays for menu, pause,
       and game over (#ui) — 2026-08-22
-- [x] 134-test deterministic suite via node:test (#testing) —
+- [x] 223-test deterministic suite via node:test (#testing) —
       2026-08-22
 - [x] GitHub Pages deployment workflow (#infra) — 2026-08-22
 - [x] v1.2.0: size-based scoring, 3x/5x power-ups, silver removed,
