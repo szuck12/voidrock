@@ -9,6 +9,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Expanded README.md with comprehensive game mechanics, technical
+  overview, scoring, difficulty curve, testing, deployment, and
+  project structure documentation.
+
 ## [1.3.0] - 2026-08-25
 
 ### Added
@@ -128,6 +134,7 @@ Initial release.
   `node:test`, seeded RNG, and fixed-step simulation helpers.
 - GitHub Pages deployment workflow and Dependabot config.
 
-[Unreleased]: https://github.com/szuck12/voidrock/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/szuck12/voidrock/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/szuck12/voidrock/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/szuck12/voidrock/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/szuck12/voidrock/releases/tag/v1.0.0
