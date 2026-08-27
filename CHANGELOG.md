@@ -45,6 +45,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   explanations, and common issues.
 - Updated README.md documentation section to list all 10 docs
   files and expanded Further Reading links.
+- Removed vertical gap rectangles flanking the gameboard on
+  wider viewports by letting `.stage` shrink-wrap to the canvas.
 
 ## [1.2.1] - 2026-08-25
 
