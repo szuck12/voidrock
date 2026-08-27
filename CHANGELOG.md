@@ -34,13 +34,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `docs/testing_guide.md` — test runner usage, file structure,
   deterministic helpers, patterns by module, adding new tests,
   common pitfalls, and coverage summary.
-- `docs/development_workflow.md` — prerequisites, day-to-day
-  commands, project structure, making changes, commit conventions,
-  code style, testing conventions, PR process, deployment, and
-  common tasks.
-- `docs/extension_patterns.md` — templates for new entities,
-  systems, config groups, rendering elements, HUD chips, and test
-  patterns.
 
 ### Changed
 - Expanded `docs/adding_powerup.md` from 5 short steps to a
@@ -50,6 +43,27 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Expanded `docs/code_review_guide.md` from a bullet checklist to
   a detailed guide with architecture overview, invariant
   explanations, and common issues.
+- Updated README.md documentation section to list all 10 docs
+  files and expanded Further Reading links.
+
+## [1.2.1] - 2026-08-25
+
+### Added
+- `docs/development_workflow.md` — prerequisites, day-to-day
+  commands, project structure, making changes, commit conventions,
+  code style, testing conventions, PR process, deployment, and
+  common tasks.
+- `docs/extension_patterns.md` — templates for new entities,
+  systems, config groups, rendering elements, HUD chips, and test
+  patterns.
+
+### Changed
+- Protective Border now destroys asteroids on contact and awards
+  points (replaces redirect-only behavior).
+- Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
+  controls reference.
+- Canvas CSS scales vertically to fit both width and height;
+  removed expanding box on small viewports.
 - Expanded `docs/commenting_guidelines.md` with block/section
   comments, TODO/FIXEMarkers, vertical spacing, and line length
   rules.
@@ -57,24 +71,12 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reference, relationship to other docs, and hygiene rules.
 - Expanded `docs/update_changelog.md` with version bump table,
   what-to-include/exclude checklists, and commit format guidance.
-- Updated README.md documentation section to list all 10 docs
-  files and expanded Further Reading links.
-
-## [1.2.1] - 2026-08-25
-
-### Changed
-- Protective Border now destroys asteroids on contact and awards
-  points (replaces redirect-only behavior).
-- Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
-  controls reference.
 
 ## [1.2.0] - 2026-08-24
 
 ### Changed
 - Favicon simplified to inline SVG cyan triangle (transparent
   background).
-- Canvas CSS scales vertically to fit both width and height;
-  removed expanding box on small viewports.
 - HUD label changed from "EFFECTS" to "POWER-UPS".
 - Space bar instruction text updated from "Fire" to "SHIP FIRES".
 - Power-up weight pool updated with 3x and 5x entries;
