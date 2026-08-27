@@ -230,8 +230,10 @@ canvas {
   .title {
     font-size: 32px;
   }
+}
 
-  .footnote span:last-child {
+@media (max-height: 340px) {
+  .footnote {
     display: none;
   }
 }
