@@ -1,55 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this
-file.
+All notable changes to this project are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-### Added
-
-- `docs/architecture.md` — core systems, module map, data flow,
-  state model, collision system, spawning, entity lifecycle,
-  rendering pipeline, configuration, deterministic design, and
-  invariants.
-- `docs/testing_guide.md` — test runner usage, file structure,
-  deterministic helpers, patterns by module, adding new tests,
-  common pitfalls, and coverage summary.
-- `docs/development_workflow.md` — prerequisites, day-to-day
-  commands, project structure, making changes, commit conventions,
-  code style, testing conventions, PR process, deployment, and
-  common tasks.
-- `docs/extension_patterns.md` — templates for new entities,
-  systems, config groups, rendering elements, HUD chips, and test
-  patterns.
-
-### Changed
-
-- Expanded `docs/adding_powerup.md` from 5 short steps to a
-  comprehensive recipe with config templates, effect hook patterns,
-  rendering guidance, HUD integration, test examples, and
-  documentation checklist.
-- Expanded `docs/code_review_guide.md` from a bullet checklist to
-  a detailed guide with architecture overview, invariant
-  explanations, and common issues.
-- Expanded `docs/commenting_guidelines.md` with block/section
-  comments, TODO/FIXEMarkers, vertical spacing, and line length
-  rules.
-- Expanded `docs/maintain_todo.md` with lifecycle table, tag
-  reference, relationship to other docs, and hygiene rules.
-- Expanded `docs/update_changelog.md` with version bump table,
-  what-to-include/exclude checklists, section definitions, and
-  compare links guidance.
-- Updated README.md documentation section to list all 10 docs
-  files and expanded Further Reading links.
+The format follows [Keep a Changelog](https://keepachangelog.com) and this
+project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.3.0] - 2026-08-25
 
 ### Added
-
 - Comprehensive test suite expansion: 223 tests across 17 suites
   (up from 159 tests across 14 suites).
 - `test_collisions.js`: Direct unit tests for `projectileHitsAsteroid`,
@@ -69,9 +27,22 @@ and this project adheres to
   spawnTimer, projectiles, events, particles).
 - Augmented `test_powerups.js` with rapid fire, multi shot, unknown
   type, and effectRemaining edge case tests.
+- `docs/architecture.md` — core systems, module map, data flow,
+  state model, collision system, spawning, entity lifecycle,
+  rendering pipeline, configuration, deterministic design, and
+  invariants.
+- `docs/testing_guide.md` — test runner usage, file structure,
+  deterministic helpers, patterns by module, adding new tests,
+  common pitfalls, and coverage summary.
+- `docs/development_workflow.md` — prerequisites, day-to-day
+  commands, project structure, making changes, commit conventions,
+  code style, testing conventions, PR process, deployment, and
+  common tasks.
+- `docs/extension_patterns.md` — templates for new entities,
+  systems, config groups, rendering elements, HUD chips, and test
+  patterns.
 
 ### Changed
-
 - Protective Border now destroys asteroids on contact and awards
   points (replaces redirect-only behavior).
 - Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
@@ -80,11 +51,26 @@ and this project adheres to
   background).
 - Canvas CSS scales vertically to fit both width and height;
   removed expanding box on small viewports.
+- Expanded `docs/adding_powerup.md` from 5 short steps to a
+  comprehensive recipe with config templates, effect hook patterns,
+  rendering guidance, HUD integration, test examples, and
+  documentation checklist.
+- Expanded `docs/code_review_guide.md` from a bullet checklist to
+  a detailed guide with architecture overview, invariant
+  explanations, and common issues.
+- Expanded `docs/commenting_guidelines.md` with block/section
+  comments, TODO/FIXEMarkers, vertical spacing, and line length
+  rules.
+- Expanded `docs/maintain_todo.md` with lifecycle table, tag
+  reference, relationship to other docs, and hygiene rules.
+- Expanded `docs/update_changelog.md` with version bump table,
+  what-to-include/exclude checklists, and commit format guidance.
+- Updated README.md documentation section to list all 10 docs
+  files and expanded Further Reading links.
 
 ## [1.2.0] - 2026-08-24
 
 ### Added
-
 - Score-based asteroid scoring: Large = 10 pts, Medium = 15 pts,
   Small = 20 pts per hit (replaces flat 10-point scoring).
 - 3x Score power-up: all scoring tripled for 8 s, unlocks at 60 s,
@@ -103,7 +89,6 @@ and this project adheres to
   clarity.
 
 ### Changed
-
 - Gold multiplier reduced from x5 to x4; special scoring now uses
   size-based points instead of flat 10.
 - Silver asteroids removed; special pool is now bronze/gold only.
@@ -123,7 +108,6 @@ and this project adheres to
 - Footer and styling refinements (arrow key spacing, badge update).
 
 ### Removed
-
 - Silver asteroid class and its x3 per-hit multiplier.
 - `POWERUP_META` and `DURATIONS`/`WEIGHTS` config objects
   (replaced by `POWERUP_TYPES`).
@@ -134,7 +118,6 @@ and this project adheres to
 Initial release.
 
 ### Added
-
 - Core arcade loop: thrust-based ship movement clamped inside a
   walled arena, inertial damping, and facing that tracks movement.
 - Projectile system with fire cooldown, active-shot cap, swept-path
@@ -164,8 +147,3 @@ Initial release.
 - Deterministic test suite: 134 tests across 12 suites using
   `node:test`, seeded RNG, and fixed-step simulation helpers.
 - GitHub Pages deployment workflow and Dependabot config.
-
-[Unreleased]: https://github.com/szuck12/voidrock/compare/v1.3.0...HEAD
-[1.3.0]: https://github.com/szuck12/voidrock/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/szuck12/voidrock/compare/v1.0.0...v1.2.0
-[1.0.0]: https://github.com/szuck12/voidrock/releases/tag/v1.0.0
