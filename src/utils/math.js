@@ -40,7 +40,7 @@ export function length(x, y) {
  *     ax: First point X.
  *     ay: First point Y.
  *     bx: Second point X.
- *     ay2: Second point Y.
+ *     by: Second point Y.
  *
  * Returns:
  *     Distance between the two points.

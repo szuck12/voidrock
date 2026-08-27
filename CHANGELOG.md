@@ -12,7 +12,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   of specials (was 58%).
 - Gold asteroids now unlock at 120 s (was 115 s) and represent 30%
   of specials (was 42%).
-- Consolidated duplicate special asteroid description in README.
+- Asteroid speed variance reduced from +/-35% to +/-25%.
+- Child asteroid speed boost reduced from 1.12x to 1.05x.
 
 ## [1.3.0] - 2026-08-25
 

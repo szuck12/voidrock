@@ -106,7 +106,7 @@ individual spin.
 
 When hit, large and medium asteroids split into two children of the
 next smaller level with diverging trajectories and a slight speed
-boost (1.12×). Small asteroids are destroyed outright. Special
+boost (1.05×). Small asteroids are destroyed outright. Special
 asteroid classes (bronze, gold) are inherited by children so an
 asteroid's value is consistent through its split stages.
 

@@ -45,12 +45,12 @@ export const ASTEROID = Object.freeze({
   RADII: Object.freeze({ 3: 38, 2: 23, 1: 12 }), // by size level
   BASE_SPEED: 115, // px/s at large size, before difficulty scaling
   SPEED_PER_LEVEL: 50, // smaller levels are proportionally faster
-  SPEED_VARIANCE: 0.35, // +/- fraction applied to spawn speed
+  SPEED_VARIANCE: 0.25, // +/- fraction applied to spawn speed
   MIN_PLAYER_DISTANCE: 150, // px; spawns never start on the player
   EDGE_MARGIN: 60, // max depth inside the board for a spawn point
   SPLIT_COUNT: 2, // children produced when a hit asteroid splits
   CHILD_ANGLE_SPREAD: Math.PI / 4, // min divergence between children
-  CHILD_SPEED_BOOST: 1.12, // slight speed-up inherited on split
+  CHILD_SPEED_BOOST: 1.05, // slight speed-up inherited on split
   MAX_COUNT: 24, // cap on simultaneous asteroids
   OFFBOARD_MARGIN: 80, // px past the board before removal
   ENTER_GRACE_SECONDS: 3, // s an off-board asteroid may linger

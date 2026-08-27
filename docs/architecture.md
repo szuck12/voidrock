@@ -349,7 +349,7 @@ When a level > 1 asteroid is destroyed:
    - Positions offset slightly from the parent.
    - Angles diverging ±`CHILD_ANGLE_SPREAD` from the parent heading.
    - Speeds inheriting a fraction of the parent's momentum, plus
-     `CHILD_SPEED_BOOST` (1.12×).
+      `CHILD_SPEED_BOOST` (1.05×).
    - The same `type` (normal, bronze, gold) as the parent.
 4. Push children into `state.asteroids`.
 5. Set `shakeTimer` to `SHAKE.HIT_DURATION` (0.08 s).

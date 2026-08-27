@@ -200,8 +200,8 @@ export function loseLife(state) {
  *     colorKey: Particle colour family ("normal" or special class).
  */
 function spawnBurst(state, x, y, count, colorKey) {
-  for (let i = 0; i < count && state.particles.length < PARTICLES.MAX;
-       i++) {
+  for (let i = 0;
+       i < count && state.particles.length < PARTICLES.MAX; i++) {
     const angle = state.rng() * Math.PI * 2;
     const speed = (0.35 + state.rng() * 0.65) * PARTICLES.SPEED;
     state.particles.push({

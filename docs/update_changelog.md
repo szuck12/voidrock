@@ -56,6 +56,8 @@ Section 9b).
 - ❌ **Comment or whitespace-only changes** — linting fixes, docstring
     rewording that doesn't change meaning.
 - ❌ **Dependency bumps** that don't change observable behaviour.
+- ❌ **README-only changes** — badge updates, link fixes, formatting,
+    or wording tweaks that don't affect gameplay or docs in `docs/`.
 
 Each entry should be a single concise line describing the change from the
 user's perspective.

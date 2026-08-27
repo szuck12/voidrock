@@ -4,7 +4,7 @@
 // Asteroids come in three size levels (3 = large, 2 = medium,
 // 1 = small).  A hit splits a level > 1 asteroid into two children
 // of the next level; level 1 asteroids are destroyed.  Special
-// classes (bronze/silver/gold) carry score multipliers and are
+// classes (bronze/gold) carry score multipliers and are
 // inherited by children so an asteroid's value is consistent
 // through its split stages.
 
