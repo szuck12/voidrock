@@ -15,6 +15,10 @@ deterministic seeded logic for exact reproducibility, an exhaustive
 
 ---
 
+**Play now:** https://szuck12.github.io/voidrock/
+
+---
+
 ## Installation
 
 Requires Node.js >= 18 (for tests) and either Python 3 or any
