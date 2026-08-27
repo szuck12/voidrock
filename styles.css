@@ -103,7 +103,7 @@ body {
 
 canvas {
   display: block;
-  width: min(100%, calc((100vh - 120px) * 1.5));
+  width: min(100%, max(300px, calc((100vh - 120px) * 1.5)));
   height: auto;
   margin: 0 auto;
 }
