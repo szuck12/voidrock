@@ -43,14 +43,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   patterns.
 
 ### Changed
-- Protective Border now destroys asteroids on contact and awards
-  points (replaces redirect-only behavior).
-- Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
-  controls reference.
-- Favicon simplified to inline SVG cyan triangle (transparent
-  background).
-- Canvas CSS scales vertically to fit both width and height;
-  removed expanding box on small viewports.
 - Expanded `docs/adding_powerup.md` from 5 short steps to a
   comprehensive recipe with config templates, effect hook patterns,
   rendering guidance, HUD integration, test examples, and
@@ -68,7 +60,61 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Updated README.md documentation section to list all 10 docs
   files and expanded Further Reading links.
 
+## [1.2.1] - 2026-08-25
+
+### Changed
+- Protective Border now destroys asteroids on contact and awards
+  points (replaces redirect-only behavior).
+- Shield label changed from "PROTECTIVE BORDER" to "SHOOT" in
+  controls reference.
+
 ## [1.2.0] - 2026-08-24
+
+### Changed
+- Favicon simplified to inline SVG cyan triangle (transparent
+  background).
+- Canvas CSS scales vertically to fit both width and height;
+  removed expanding box on small viewports.
+- HUD label changed from "EFFECTS" to "POWER-UPS".
+- Space bar instruction text updated from "Fire" to "SHIP FIRES".
+- Power-up weight pool updated with 3x and 5x entries;
+  `POWERUP_TYPES` now a single data-driven config object.
+- Footer and styling refinements (arrow key spacing, badge update).
+- Arrow keys display with A D on the left, W S on the right for
+  clarity.
+
+## [1.1.2] - 2026-08-23
+
+### Changed
+- Base asteroid speed increased from 70 to 115 px/s; per-tier speed
+  increased from +30 to +50 px/s.
+- Protective Border is now a protective effect: it redirects
+  asteroids without destroying them and awards no points (replaces
+  destructive wall that scored on contact).
+- Speed Boost duration extended from 6 s to 15 s.
+- Slow Asteroids duration extended from 6 s to 10 s.
+- Rapid Fire duration extended from 8 s to 10 s.
+- Protective Border duration extended from 10 s to 20 s.
+
+## [1.1.1] - 2026-08-23
+
+### Added
+- Randomised spawn sizes: 50% large, 30% medium, 20% small
+  (replaces always-large spawns).
+- Four-sided spawn edges (top, bottom, left, right) — asteroids
+  now enter from all sides of the arena.
+
+### Changed
+- Gold multiplier reduced from x5 to x4; special scoring now uses
+  size-based points instead of flat 10.
+
+### Removed
+- Silver asteroid class and its x3 per-hit multiplier.
+- `POWERUP_META` and `DURATIONS`/`WEIGHTS` config objects
+  (replaced by `POWERUP_TYPES`).
+- QuantLab references removed from documentation.
+
+## [1.1.0] - 2026-08-22
 
 ### Added
 - Score-based asteroid scoring: Large = 10 pts, Medium = 15 pts,
@@ -81,37 +127,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   multiplicatively for up to 20x on a single hit.
 - Progressive power-up spawn frequency: `freqScale = 1 + elapsed / 600`,
   making power-ups more common as the game progresses.
-- Randomised spawn sizes: 50% large, 30% medium, 20% small
-  (replaces always-large spawns).
-- Four-sided spawn edges (top, bottom, left, right) — asteroids
-  now enter from all sides of the arena.
-- Arrow keys display with A D on the left, W S on the right for
-  clarity.
-
-### Changed
-- Gold multiplier reduced from x5 to x4; special scoring now uses
-  size-based points instead of flat 10.
-- Silver asteroids removed; special pool is now bronze/gold only.
-- Base asteroid speed increased from 70 to 115 px/s; per-tier speed
-  increased from +30 to +50 px/s.
-- Protective Border is now a protective effect: it redirects
-  asteroids without destroying them and awards no points (replaces
-  destructive wall that scored on contact).
-- Speed Boost duration extended from 6 s to 15 s.
-- Slow Asteroids duration extended from 6 s to 10 s.
-- Rapid Fire duration extended from 8 s to 10 s.
-- Protective Border duration extended from 10 s to 20 s.
-- HUD label changed from "EFFECTS" to "POWER-UPS".
-- Space bar instruction text updated from "Fire" to "SHIP FIRES".
-- Power-up weight pool updated with 3x and 5x entries;
-  `POWERUP_TYPES` now a single data-driven config object.
-- Footer and styling refinements (arrow key spacing, badge update).
-
-### Removed
-- Silver asteroid class and its x3 per-hit multiplier.
-- `POWERUP_META` and `DURATIONS`/`WEIGHTS` config objects
-  (replaced by `POWERUP_TYPES`).
-- QuantLab references removed from documentation.
 
 ## [1.0.0] - 2026-08-22
 
