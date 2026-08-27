@@ -126,7 +126,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Silver asteroid class and its x3 per-hit multiplier.
 - `POWERUP_META` and `DURATIONS`/`WEIGHTS` config objects
   (replaced by `POWERUP_TYPES`).
-- QuantLab references removed from documentation.
+- Removed legacy project references from documentation.
 
 ## [1.1.0] - 2026-08-22
 
