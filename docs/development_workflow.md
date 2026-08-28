@@ -59,7 +59,7 @@ voidrock/
 ├── docs/                         # Development guides
 │   ├── adding_powerup.md         # Recipe: new power-up types
 │   ├── architecture.md           # Systems, data flow, invariants
-│   ├── code_review_guide.md      # Review expectations
+│   ├── code_review_guide.md      # Fast-track + deep-dive review
 │   ├── commenting_guidelines.md  # Comment style rules
 │   ├── development_workflow.md   # This file
 │   ├── extension_patterns.md     # Entity/system creation templates
@@ -274,8 +274,8 @@ See `docs/testing_guide.md` for the complete guide.  Key points:
 
 ### What reviewers check
 
-See `docs/code_review_guide.md` for the full checklist.  The most
-critical items:
+See `docs/code_review_guide.md` for the full fast-track checklist
+and the scheduled deep-dive audit.  The most critical items:
 
 - **Determinism**: no `Math.random()`, no `Date.now()` in game
   logic.

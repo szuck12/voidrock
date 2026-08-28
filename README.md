@@ -297,7 +297,7 @@ voidrock/
 ├── docs/                         # Development guides
 │   ├── adding_powerup.md         # Recipe: new power-up types
 │   ├── architecture.md           # Systems, data flow, invariants
-│   ├── code_review_guide.md      # Review expectations
+│   ├── code_review_guide.md      # Fast-track + deep-dive review
 │   ├── commenting_guidelines.md  # Comment style rules
 │   ├── development_workflow.md   # Setup, run, contribute
 │   ├── extension_patterns.md     # Entity/system creation templates
@@ -408,7 +408,8 @@ server as-is.
 * `docs/extension_patterns.md` — templates for new entities,
   systems, config groups, and rendering elements
 * `docs/adding_powerup.md` — step-by-step recipe for new power-ups
-* `docs/code_review_guide.md` — what reviewers check first
+* `docs/code_review_guide.md` — per-commit gate and scheduled
+  deep-dive review
 * `docs/commenting_guidelines.md` — how source comments are written
 * `docs/game_mechanics.md` — tuning values and design rationale
 * `docs/maintain_todo.md` — how TODO.md is maintained

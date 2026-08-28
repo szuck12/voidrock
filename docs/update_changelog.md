@@ -41,7 +41,7 @@ public: state only the number and general nature of what was fixed
 Never name specific packages, versions, or CVE identifiers in committed
 changelog entries; those details belong in the maintainer's private
 security log and GitHub security advisories (see `code_review_guide.md`,
-Section 9b).
+Section 9b — Severity Scale and Reporting Protocol).
 
 ### What to include
 
