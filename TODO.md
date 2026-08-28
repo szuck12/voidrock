@@ -11,7 +11,7 @@ A living list of tasks and ideas for VoidRock. See
 
 - [x] Core game loop with deterministic, seeded simulation
       (#architecture) — 2026-08-22
-- [x] Asteroid splitting, specials (bronze/silver/gold), and
+- [x] Asteroid splitting, specials (bronze/gold), and
       time-based difficulty curve (#gameplay) — 2026-08-22
 - [x] Seven power-ups with eligibility rules and timed effects
       (#gameplay) — 2026-08-22

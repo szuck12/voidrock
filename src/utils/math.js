@@ -45,8 +45,8 @@ export function length(x, y) {
  * Returns:
  *     Distance between the two points.
  */
-export function distance(ax, ay, bx, ay2) {
-  return length(bx - ax, ay2 - ay);
+export function distance(ax, ay, bx, by) {
+  return length(bx - ax, by - ay);
 }
 
 /**

@@ -5,6 +5,9 @@
 // tests can reproduce exact sequences.  The default factory uses
 // mulberry32, a small, fast, well-distributed 32-bit generator.
 
+/** Deterministic fallback so an omitted seed stays reproducible. */
+export const DEFAULT_SEED = 0;
+
 /**
  * Create a seeded random number generator.
  *
@@ -15,7 +18,7 @@
  *     Function producing uniform floats in [0, 1). Two generators
  *     created with the same seed produce identical sequences.
  */
-export function createRng(seed = Date.now() >>> 0) {
+export function createRng(seed = DEFAULT_SEED) {
   let a = seed >>> 0;
   return function next() {
     a |= 0;

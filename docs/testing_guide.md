@@ -420,7 +420,7 @@ assert.equal(state.lives, 3);
 
 ## Test Coverage Summary
 
-The suite currently has **223 tests** across **16 files**:
+The suite currently has **223 tests** across **15 files**:
 
 | File | Tests | Module(s) tested |
 | --- | --- | --- |

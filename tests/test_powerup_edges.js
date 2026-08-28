@@ -45,9 +45,11 @@ describe("powerUpPosition", () => {
     const state = makeState();
     for (let i = 0; i < 30; i++) {
       const pos = powerUpPosition(r, state.player);
-      assert.ok(pos.x >= 70 && pos.x <= BOARD.WIDTH - 70,
+      assert.ok(pos.x >= POWERUP.SPAWN_MARGIN &&
+                pos.x <= BOARD.WIDTH - POWERUP.SPAWN_MARGIN,
                 `x=${pos.x} outside margins`);
-      assert.ok(pos.y >= 70 && pos.y <= BOARD.HEIGHT - 70,
+      assert.ok(pos.y >= POWERUP.SPAWN_MARGIN &&
+                pos.y <= BOARD.HEIGHT - POWERUP.SPAWN_MARGIN,
                 `y=${pos.y} outside margins`);
     }
   });

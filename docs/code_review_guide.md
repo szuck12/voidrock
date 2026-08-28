@@ -96,8 +96,8 @@ documentation files.
 
       | Change type | Bump | Example |
       |-------------|------|---------|
-      | New power-up, new special, new entity | MINOR | 1.3.1 → 1.4.0 |
-      | Bug fix, tuning, doc improvements, tests | PATCH | 1.3.1 → 1.3.2 |
+      | New power-up, new special, new entity | MINOR | 1.3.2 → 1.4.0 |
+      | Bug fix, tuning, doc improvements, tests | PATCH | 1.3.2 → 1.3.3 |
       | Breaking gameplay rule / config key / API | MAJOR | 1.x.x → 2.0.0 |
 
 - [ ] Changelog entries include only user-facing and
@@ -238,7 +238,7 @@ Sources of truth: `docs/testing_guide.md` and the actual suite.
 
 ### 4a. Coverage Matrix
 
-The suite holds 223 tests across 16 files.  Confirm each module has
+The suite holds 223 tests across 15 files.  Confirm each module has
 at least one dedicated test file:
 
 | Source module | Test file |

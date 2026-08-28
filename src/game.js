@@ -25,7 +25,7 @@ import {
 import { resolvePlayerCollisions, resolveProjectileHits }
   from "./systems/collisions.js";
 import { updateTimeScore } from "./systems/scoring.js";
-import { createRng } from "./utils/rng.js";
+import { createRng, DEFAULT_SEED } from "./utils/rng.js";
 
 /**
  * Create the initial game state (menu phase).
@@ -41,7 +41,7 @@ import { createRng } from "./utils/rng.js";
  *     this object; there is no hidden global state.
  */
 export function createInitialState(options = {}) {
-  const seed = options.seed != null ? options.seed : (Date.now() >>> 0);
+  const seed = options.seed ?? DEFAULT_SEED;
   const rng = createRng(seed);
   const player = createPlayer();
   return {

@@ -1,6 +1,6 @@
 # VoidRock
 
-![version](https://img.shields.io/badge/version-1.3.1-blue)
+![version](https://img.shields.io/badge/version-1.3.2-blue)
 
 A minimalist arcade survival game built with vanilla JavaScript and
 HTML5 Canvas. Pilot a wedge-fighter inside a walled arena, split
@@ -104,7 +104,7 @@ Rocks spawn from all four edges and appear in three sizes:
 | 1 (small) | 12 px | +50 px/s again |
 
 Spawn sizes use weighted random selection: 50% large, 30% medium,
-20% small. Speeds carry ±35% variance. Each asteroid is rendered as
+20% small. Speeds carry ±25% variance. Each asteroid is rendered as
 a procedurally generated irregular polygon with 8–11 vertices and
 individual spin.
 
@@ -293,7 +293,8 @@ voidrock/
 ├── .github/
 │   ├── dependabot.yml            # Weekly npm + Actions updates
 │   └── workflows/
-│       └── deploy-pages.yml      # GitHub Pages deployment
+│       ├── deploy-pages.yml      # GitHub Pages deployment
+│       └── test.yml              # Pre-commit test + failure gating
 ├── docs/                         # Development guides
 │   ├── adding_powerup.md         # Recipe: new power-up types
 │   ├── architecture.md           # Systems, data flow, invariants
@@ -313,9 +314,19 @@ voidrock/
 │   ├── main.js                   # Browser bootstrap + RAF loop
 │   ├── render.js                 # Canvas drawing (all visuals)
 │   ├── entities/                 # Player, projectile, asteroid
+│   │   ├── asteroid.js           # Creation, movement, split
+│   │   ├── player.js             # Ship physics, board clamping
+│   │   └── projectile.js         # Shot creation + lifetime
 │   ├── systems/                  # Scoring, difficulty, spawner,
 │   │                             # power-ups, collisions
+│   │   ├── collisions.js         # Hit/destroy resolution
+│   │   ├── difficulty.js         # Keyframe curve + special rolls
+│   │   ├── powerups.js           # Spawn, collect, effects
+│   │   ├── scoring.js            # Score + best tracking
+│   │   └── spawner.js            # Asteroid spawn scheduling
 │   └── utils/                    # Seeded RNG + math helpers
+│       ├── math.js               # Geometry helpers
+│       └── rng.js                # mulberry32 PRNG + selection
 ├── tests/                        # node:test suite
 │   ├── helpers.js                # Deterministic fixtures
 │   ├── test_asteroids.js         # Movement, culling, speeds

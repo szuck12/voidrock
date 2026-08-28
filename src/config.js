@@ -48,6 +48,7 @@ export const ASTEROID = Object.freeze({
   SPEED_VARIANCE: 0.25, // +/- fraction applied to spawn speed
   MIN_PLAYER_DISTANCE: 150, // px; spawns never start on the player
   EDGE_MARGIN: 60, // max depth inside the board for a spawn point
+  SPAWN_ANGLE_SPREAD: Math.PI / 3, // +/- radians around inward normal
   SPLIT_COUNT: 2, // children produced when a hit asteroid splits
   CHILD_ANGLE_SPREAD: Math.PI / 4, // min divergence between children
   CHILD_SPEED_BOOST: 1.05, // slight speed-up inherited on split
@@ -103,13 +104,20 @@ export const SPECIAL = Object.freeze({
  */
 export const DIFFICULTY = Object.freeze({
   KEYFRAMES: Object.freeze([
-    Object.freeze({ t: 0, spawnInterval: 1.6, speedMult: 1.0, specialChance: 0.03 }),
-    Object.freeze({ t: 30, spawnInterval: 1.5, speedMult: 1.1, specialChance: 0.05 }),
-    Object.freeze({ t: 60, spawnInterval: 1.3, speedMult: 1.22, specialChance: 0.08 }),
-    Object.freeze({ t: 100, spawnInterval: 1.08, speedMult: 1.36, specialChance: 0.11 }),
-    Object.freeze({ t: 150, spawnInterval: 0.88, speedMult: 1.52, specialChance: 0.14 }),
-    Object.freeze({ t: 220, spawnInterval: 0.71, speedMult: 1.72, specialChance: 0.17 }),
-    Object.freeze({ t: 300, spawnInterval: 0.58, speedMult: 1.95, specialChance: 0.2 }),
+    Object.freeze({ t: 0, spawnInterval: 1.6, speedMult: 1.0,
+                    specialChance: 0.03 }),
+    Object.freeze({ t: 30, spawnInterval: 1.5, speedMult: 1.1,
+                    specialChance: 0.05 }),
+    Object.freeze({ t: 60, spawnInterval: 1.3, speedMult: 1.22,
+                    specialChance: 0.08 }),
+    Object.freeze({ t: 100, spawnInterval: 1.08, speedMult: 1.36,
+                    specialChance: 0.11 }),
+    Object.freeze({ t: 150, spawnInterval: 0.88, speedMult: 1.52,
+                    specialChance: 0.14 }),
+    Object.freeze({ t: 220, spawnInterval: 0.71, speedMult: 1.72,
+                    specialChance: 0.17 }),
+    Object.freeze({ t: 300, spawnInterval: 0.58, speedMult: 1.95,
+                    specialChance: 0.2 }),
   ]),
 });
 
@@ -126,12 +134,12 @@ export const POWERUP_TYPES = Object.freeze({
     weight: 20,
   }),
   points_boost: Object.freeze({
-    label: "POINTS 2X",
+    label: "SCORE 2X",
     duration: 10,
     weight: 18,
   }),
   slow_asteroids: Object.freeze({
-    label: "SLOW ASTEROIDS",
+    label: "SLOW",
     duration: 10,
     weight: 16,
   }),
@@ -141,17 +149,17 @@ export const POWERUP_TYPES = Object.freeze({
     weight: 16,
   }),
   rapid_fire: Object.freeze({
-    label: "RAPID SHOT",
+    label: "RAPID",
     duration: 10,
     weight: 14,
   }),
   multi_shot: Object.freeze({
-    label: "MULTI SHOT",
+    label: "MULTI",
     duration: 10,
     weight: 10,
   }),
   extra_life: Object.freeze({
-    label: "EXTRA LIFE",
+    label: "1UP",
     duration: 0, // instant
     weight: 8,
   }),
@@ -177,6 +185,7 @@ export const POWERUP = Object.freeze({
   MAX_ON_SCREEN: 2,
   RADIUS: 16,
   MIN_PLAYER_DISTANCE: 90, // px; never spawn on top of the ship
+  SPAWN_MARGIN: 70, // px; keep spawns clear of the board edges
 
   // Effect magnitudes.
   SPEED_BOOST_MULT: 1.5, // thrust/top-speed multiplier while boosting

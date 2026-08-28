@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com) and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-08-28
+
+### Changed
+- HUD power-up chip labels shortened to the 8-character, all-caps rule
+  (e.g. "SLOW" for Slow Asteroids, "1UP" for Extra Life, "RAPID" for
+  Rapid Fire).
+- Seed fallback in `createInitialState`/`createRng` is now a fixed
+  constant, preserving determinism when no seed is supplied.
+- Spawn-angle spread and power-up spawn margin moved into `config.js`.
+- README and `docs/` corrected to state the +/-25% speed variance and
+  current module line counts.
+
 ## [1.3.1] - 2026-08-26
 
 ### Changed

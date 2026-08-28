@@ -55,7 +55,8 @@ voidrock/
 ├── .github/
 │   ├── dependabot.yml            # Weekly npm + Actions updates
 │   └── workflows/
-│       └── deploy-pages.yml      # GitHub Pages deployment
+│       ├── deploy-pages.yml      # GitHub Pages deployment
+│       └── test.yml              # Pre-commit test + failure gating
 ├── docs/                         # Development guides
 │   ├── adding_powerup.md         # Recipe: new power-up types
 │   ├── architecture.md           # Systems, data flow, invariants
@@ -75,12 +76,22 @@ voidrock/
 │   ├── main.js                   # Browser bootstrap + RAF loop
 │   ├── render.js                 # Canvas drawing (all visuals)
 │   ├── entities/                 # Player, projectile, asteroid
+│   │   ├── asteroid.js           # Creation, movement, split
+│   │   ├── player.js             # Ship physics, board clamping
+│   │   └── projectile.js         # Shot creation + lifetime
 │   ├── systems/                  # Scoring, difficulty, spawner,
 │   │                             # power-ups, collisions
+│   │   ├── collisions.js         # Hit/destroy resolution
+│   │   ├── difficulty.js         # Keyframe curve + special rolls
+│   │   ├── powerups.js           # Spawn, collect, effects
+│   │   ├── scoring.js            # Score + best tracking
+│   │   └── spawner.js            # Asteroid spawn scheduling
 │   └── utils/                    # Seeded RNG + math helpers
+│       ├── math.js               # Geometry helpers
+│       └── rng.js                # mulberry32 PRNG + selection
 ├── tests/                        # node:test suite
 │   ├── helpers.js                # Deterministic fixtures
-│   └── test_*.js                 # Test files (16 suites)
+│   └── test_*.js                 # Test files (15)
 ├── index.html                    # Game shell: HUD + overlays
 ├── styles.css                    # Terminal-flavoured styling
 ├── run_tests.js                  # Convenience test runner

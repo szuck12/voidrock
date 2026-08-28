@@ -128,7 +128,7 @@ export function spawnPosition(edge, rng, player) {
  *     board interior with random spread.
  */
 export function spawnAngle(edge, rng) {
-  const spread = Math.PI / 3; // +/-60 degrees around inward normal
+  const spread = ASTEROID.SPAWN_ANGLE_SPREAD; // +/- around inward normal
   if (edge === "top") {
     return range(rng, Math.PI / 2 - spread, Math.PI / 2 + spread);
   }

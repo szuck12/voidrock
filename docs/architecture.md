@@ -14,7 +14,7 @@ boundary it must not cross.
 
 | File | Lines | Purpose | Must not |
 | --- | --- | --- | --- |
-| `config.js` | 213 | All tunable gameplay constants | import anything; mutate |
+| `config.js` | 222 | All tunable gameplay constants | import anything; mutate |
 | `game.js` | 338 | State model, `stepGame` simulation driver | touch DOM, Canvas, wall clocks |
 | `main.js` | 183 | Browser bootstrap, RAF loop, DOM/Canvas setup | contain game logic |
 | `render.js` | 427 | Canvas drawing of every visual element | mutate game state |
@@ -29,7 +29,7 @@ boundary it must not cross.
 | `systems/scoring.js` | 74 | Score calculation, survival accrual, best tracking | import DOM or browser globals |
 | `systems/spawner.js` | 178 | Asteroid spawn placement, scheduling, edge selection | import DOM or browser globals |
 | `utils/math.js` | 153 | Vector, geometry, and interpolation helpers | import game state or config |
-| `utils/rng.js` | 62 | Seeded PRNG (mulberry32) and weighted selection | import game state |
+| `utils/rng.js` | 98 | Seeded PRNG (mulberry32) and weighted selection | import game state |
 
 The dependency graph flows one way:
 

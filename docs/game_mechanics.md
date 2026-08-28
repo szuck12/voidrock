@@ -32,7 +32,7 @@ code defines *what*.
 | 2 (medium) | 23 px | +50 px/s over parent tier |
 | 1 (small) | 12 px | +50 px/s again |
 
-* Speeds carry ±35% variance; children inherit heading ± divergence.
+* Speeds carry ±25% variance; children inherit heading ± divergence.
 * Spawn edges are all four sides — top, bottom, left, right —
   weighted equally at 25% each.
 * Spawn sizes use weighted random selection: 50% large, 30% medium,

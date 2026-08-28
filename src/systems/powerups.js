@@ -175,7 +175,7 @@ export function eligibleWeights(state) {
  *     Spawn position {x, y}.
  */
 export function powerUpPosition(rng, player) {
-  const margin = 70;
+  const margin = POWERUP.SPAWN_MARGIN;
   for (let attempt = 0; attempt < 24; attempt++) {
     const x = range(rng, margin, BOARD.WIDTH - margin);
     const y = range(rng, margin, BOARD.HEIGHT - margin);
