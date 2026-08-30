@@ -1,6 +1,6 @@
 # VoidRock
 
-![version](https://img.shields.io/badge/version-1.3.2-blue)
+**Current version: 1.3.2 - [Changelog](CHANGELOG.md)**
 
 A minimalist arcade survival game built with vanilla JavaScript and
 HTML5 Canvas. Pilot a wedge-fighter inside a walled arena, split
